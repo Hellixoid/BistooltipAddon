@@ -13,7 +13,8 @@ Bistooltip_wowtbc_classes = {};
 Bistooltip_wowtbc_classes[1] = { ["name"] = "Death knight", ["specs"] = { 
     [1] = "Blood tank",
     [2] = "Frost",
-    [3] = "Unholy"
+    [3] = "Unholy",
+    [4] = "Blood dps"
 }};
 Bistooltip_wowtbc_classes[2] = { ["name"] = "Druid", ["specs"] = { 
     [1] = "Balance",
@@ -259,6 +260,67 @@ Bistooltip_wowtbc_bislists["Death knight"]["Unholy"]["T10"][12] = { ["slot_name"
 Bistooltip_wowtbc_bislists["Death knight"]["Unholy"]["T10"][13] = { ["slot_name"] = "Weapon", ["enhs"] = { [1] = { ["type"] = "spell", ["id"] = 53344 }, [2] = { ["type"] = "item", ["id"] = 40111 }, [3] = { ["type"] = "none", ["id"] = 0 }, [4] = { ["type"] = "item", ["id"] = 40111 }, [5] = { ["type"] = "none", ["id"] = 0 }, [6] = { ["type"] = "item", ["id"] = 40111 } }, [1] = 49623, [2] = 50737, [3] = 50672, [4] = 50012, [5] = 51858, [6] = 51893 }
 Bistooltip_wowtbc_bislists["Death knight"]["Unholy"]["T10"][14] = { ["slot_name"] = "Off hand", ["enhs"] = { }, [1] = 50737, [2] = 50672, [3] = 50012, [4] = 51858, [5] = 51893, [6] = 50738 }
 Bistooltip_wowtbc_bislists["Death knight"]["Unholy"]["T10"][15] = { ["slot_name"] = "Relic", ["enhs"] = { }, [1] = 50459, [2] = 47673, [3] = 45254, [4] = 42620, [5] = 40867, [6] = 40822 }
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"] = {};
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["PR"] = {};
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["T8"] = {};
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["T9"] = {};
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["T10"] = {};
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["PR"][1] = { ["slot_name"] = "Head", ["enhs"] = { }, [1] = -1, [2] = -1, [3] = -1, [4] = -1, [5] = -1, [6] = -1 }
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["PR"][2] = { ["slot_name"] = "Neck", ["enhs"] = { }, [1] = -1, [2] = -1, [3] = -1, [4] = -1, [5] = -1, [6] = -1 }
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["PR"][3] = { ["slot_name"] = "Shoulder", ["enhs"] = { }, [1] = -1, [2] = -1, [3] = -1, [4] = -1, [5] = -1, [6] = -1 }
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["PR"][4] = { ["slot_name"] = "Back", ["enhs"] = { }, [1] = -1, [2] = -1, [3] = -1, [4] = -1, [5] = -1, [6] = -1 }
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["PR"][5] = { ["slot_name"] = "Chest", ["enhs"] = { }, [1] = -1, [2] = -1, [3] = -1, [4] = -1, [5] = -1, [6] = -1 }
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["PR"][6] = { ["slot_name"] = "Wrist", ["enhs"] = { }, [1] = -1, [2] = -1, [3] = -1, [4] = -1, [5] = -1, [6] = -1 }
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["PR"][7] = { ["slot_name"] = "Hands", ["enhs"] = { }, [1] = -1, [2] = -1, [3] = -1, [4] = -1, [5] = -1, [6] = -1 }
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["PR"][8] = { ["slot_name"] = "Waist", ["enhs"] = { }, [1] = -1, [2] = -1, [3] = -1, [4] = -1, [5] = -1, [6] = -1 }
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["PR"][9] = { ["slot_name"] = "Legs", ["enhs"] = { }, [1] = -1, [2] = -1, [3] = -1, [4] = -1, [5] = -1, [6] = -1 }
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["PR"][10] = { ["slot_name"] = "Feet", ["enhs"] = { }, [1] = -1, [2] = -1, [3] = -1, [4] = -1, [5] = -1, [6] = -1 }
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["PR"][11] = { ["slot_name"] = "Finger", ["enhs"] = { }, [1] = -1, [2] = -1, [3] = -1, [4] = -1, [5] = -1, [6] = -1 }
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["PR"][12] = { ["slot_name"] = "Trinket", ["enhs"] = { }, [1] = -1, [2] = -1, [3] = -1, [4] = -1, [5] = -1, [6] = -1 }
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["PR"][13] = { ["slot_name"] = "Weapon", ["enhs"] = { }, [1] = -1, [2] = -1, [3] = -1, [4] = -1, [5] = -1, [6] = -1 }
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["PR"][14] = { ["slot_name"] = "Relic", ["enhs"] = { }, [1] = 40715, [2] = 40822, [3] = -1, [4] = -1, [5] = -1, [6] = -1 }
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["T8"][1] = { ["slot_name"] = "Head", ["enhs"] = { }, [1] = -1, [2] = -1, [3] = -1, [4] = -1, [5] = -1, [6] = -1 }
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["T8"][2] = { ["slot_name"] = "Neck", ["enhs"] = { }, [1] = 45459, [2] = -1, [3] = -1, [4] = -1, [5] = -1, [6] = -1 }
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["T8"][3] = { ["slot_name"] = "Shoulder", ["enhs"] = { }, [1] = -1, [2] = -1, [3] = -1, [4] = -1, [5] = -1, [6] = -1 }
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["T8"][4] = { ["slot_name"] = "Back", ["enhs"] = { }, [1] = -1, [2] = -1, [3] = -1, [4] = -1, [5] = -1, [6] = -1 }
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["T8"][5] = { ["slot_name"] = "Chest", ["enhs"] = { }, [1] = -1, [2] = -1, [3] = -1, [4] = -1, [5] = -1, [6] = -1 }
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["T8"][6] = { ["slot_name"] = "Wrist", ["enhs"] = { }, [1] = -1, [2] = -1, [3] = -1, [4] = -1, [5] = -1, [6] = -1 }
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["T8"][7] = { ["slot_name"] = "Hands", ["enhs"] = { }, [1] = -1, [2] = -1, [3] = -1, [4] = -1, [5] = -1, [6] = -1 }
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["T8"][8] = { ["slot_name"] = "Waist", ["enhs"] = { }, [1] = -1, [2] = -1, [3] = -1, [4] = -1, [5] = -1, [6] = -1 }
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["T8"][9] = { ["slot_name"] = "Legs", ["enhs"] = { }, [1] = -1, [2] = -1, [3] = -1, [4] = -1, [5] = -1, [6] = -1 }
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["T8"][10] = { ["slot_name"] = "Feet", ["enhs"] = { }, [1] = -1, [2] = -1, [3] = -1, [4] = -1, [5] = -1, [6] = -1 }
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["T8"][11] = { ["slot_name"] = "Finger", ["enhs"] = { }, [1] = -1, [2] = -1, [3] = -1, [4] = -1, [5] = -1, [6] = -1 }
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["T8"][12] = { ["slot_name"] = "Trinket", ["enhs"] = { }, [1] = -1, [2] = -1, [3] = -1, [4] = -1, [5] = -1, [6] = -1 }
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["T8"][13] = { ["slot_name"] = "Weapon", ["enhs"] = { }, [1] = -1, [2] = -1, [3] = -1, [4] = -1, [5] = -1, [6] = -1 }
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["T8"][14] = { ["slot_name"] = "Relic", ["enhs"] = { }, [1] = 40207, [2] = 45254, [3] = 40715, [4] = 40822, [5] = -1, [6] = -1 }
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["T9"][1] = { ["slot_name"] = "Head", ["enhs"] = { }, [1] = -1, [2] = -1, [3] = -1, [4] = -1, [5] = -1, [6] = -1 }
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["T9"][2] = { ["slot_name"] = "Neck", ["enhs"] = { }, [1] = 45459, [2] = -1, [3] = -1, [4] = -1, [5] = -1, [6] = -1 }
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["T9"][3] = { ["slot_name"] = "Shoulder", ["enhs"] = { }, [1] = -1, [2] = -1, [3] = -1, [4] = -1, [5] = -1, [6] = -1 }
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["T9"][4] = { ["slot_name"] = "Back", ["enhs"] = { }, [1] = 47547, [2] = 47545, [3] = -1, [4] = -1, [5] = -1, [6] = -1 }
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["T9"][5] = { ["slot_name"] = "Chest", ["enhs"] = { }, [1] = -1, [2] = -1, [3] = -1, [4] = -1, [5] = -1, [6] = -1 }
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["T9"][6] = { ["slot_name"] = "Wrist", ["enhs"] = { }, [1] = 47155, [2] = -1, [3] = -1, [4] = -1, [5] = -1, [6] = -1 }
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["T9"][7] = { ["slot_name"] = "Hands", ["enhs"] = { }, [1] = -1, [2] = -1, [3] = -1, [4] = -1, [5] = -1, [6] = -1 }
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["T9"][8] = { ["slot_name"] = "Waist", ["enhs"] = { }, [1] = -1, [2] = -1, [3] = -1, [4] = -1, [5] = -1, [6] = -1 }
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["T9"][9] = { ["slot_name"] = "Legs", ["enhs"] = { }, [1] = -1, [2] = -1, [3] = -1, [4] = -1, [5] = -1, [6] = -1 }
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["T9"][10] = { ["slot_name"] = "Feet", ["enhs"] = { }, [1] = -1, [2] = -1, [3] = -1, [4] = -1, [5] = -1, [6] = -1 }
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["T9"][11] = { ["slot_name"] = "Finger", ["enhs"] = { }, [1] = -1, [2] = -1, [3] = -1, [4] = -1, [5] = -1, [6] = -1 }
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["T9"][12] = { ["slot_name"] = "Trinket", ["enhs"] = { }, [1] = 47131, [2] = 47115, [3] = -1, [4] = -1, [5] = -1, [6] = -1 }
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["T9"][13] = { ["slot_name"] = "Weapon", ["enhs"] = { }, [1] = -1, [2] = -1, [3] = -1, [4] = -1, [5] = -1, [6] = -1 }
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["T9"][14] = { ["slot_name"] = "Relic", ["enhs"] = { }, [1] = 47673, [2] = 40207, [3] = 45254, [4] = 40715, [5] = 40822, [6] = -1 }
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["T10"][1] = { ["slot_name"] = "Head", ["enhs"] = { [1] = { ["type"] = "item", ["id"] = 44879 }, [2] = { ["type"] = "item", ["id"] = 41398 }, [3] = { ["type"] = "none", ["id"] = 0 }, [4] = { ["type"] = "item", ["id"] = 40117 } }, [1] = 51312, [2] = 50712, [3] = 50713, [4] = 51866, [5] = 51127, [6] = 50072 }
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["T10"][2] = { ["slot_name"] = "Neck", ["enhs"] = { [1] = { ["type"] = "none", ["id"] = 0 }, [2] = { ["type"] = "item", ["id"] = 40125 } }, [1] = 50728, [2] = 50647, [3] = 50633, [4] = 50180, [5] = 45459, [6] = 51890 }
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["T10"][3] = { ["slot_name"] = "Shoulder", ["enhs"] = { [1] = { ["type"] = "item", ["id"] = 44871 }, [2] = { ["type"] = "item", ["id"] = 40117 } }, [1] = 51314, [2] = 51865, [3] = 50674, [4] = 51830, [5] = 51125, [6] = 50646 }
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["T10"][4] = { ["slot_name"] = "Back", ["enhs"] = { [1] = { ["type"] = "spell", ["id"] = 47898 }, [2] = { ["type"] = "item", ["id"] = 40125 } }, [1] = 50677, [2] = 47547, [3] = 50467, [4] = 47545, [5] = 51933, [6] = 50653 }
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["T10"][5] = { ["slot_name"] = "Chest", ["enhs"] = { [1] = { ["type"] = "spell", ["id"] = 60692 }, [2] = { ["type"] = "item", ["id"] = 40117 }, [3] = { ["type"] = "none", ["id"] = 0 }, [4] = { ["type"] = "item", ["id"] = 49110 } }, [1] = 51310, [2] = 50656, [3] = 50606, [4] = 51923, [5] = 50965, [6] = 51129 }
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["T10"][6] = { ["slot_name"] = "Wrist", ["enhs"] = { [1] = { ["type"] = "spell", ["id"] = 44575 }, [2] = { ["type"] = "item", ["id"] = 40117 } }, [1] = 50659, [2] = 50670, [3] = 50655, [4] = 50002, [5] = 47155, [6] = 50333 }
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["T10"][7] = { ["slot_name"] = "Hands", ["enhs"] = { [1] = { ["type"] = "spell", ["id"] = 60668 }, [2] = { ["type"] = "item", ["id"] = 40125 }, [3] = { ["type"] = "none", ["id"] = 0 }, [4] = { ["type"] = "item", ["id"] = 40117 } }, [1] = 50675, [2] = 51311, [3] = 51892, [4] = 51844, [5] = 50021, [6] = 50690 }
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["T10"][8] = { ["slot_name"] = "Waist", ["enhs"] = { [1] = { ["type"] = "none", ["id"] = 0 }, [2] = { ["type"] = "item", ["id"] = 40125 }, [3] = { ["type"] = "none", ["id"] = 0 }, [4] = { ["type"] = "item", ["id"] = 40117 }, [5] = { ["type"] = "none", ["id"] = 0 }, [6] = { ["type"] = "item", ["id"] = 40117 } }, [1] = 50620, [2] = 51879, [3] = 50707, [4] = 50995, [5] = 50688, [6] = 50187 }
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["T10"][9] = { ["slot_name"] = "Legs", ["enhs"] = { [1] = { ["type"] = "item", ["id"] = 38374 }, [2] = { ["type"] = "item", ["id"] = 40117 }, [3] = { ["type"] = "none", ["id"] = 0 }, [4] = { ["type"] = "item", ["id"] = 40117 } }, [1] = 51313, [2] = 50697, [3] = 51817, [4] = 50645, [5] = 50624, [6] = 49903 }
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["T10"][10] = { ["slot_name"] = "Feet", ["enhs"] = { [1] = { ["type"] = "spell", ["id"] = 60763 }, [2] = { ["type"] = "item", ["id"] = 40125 }, [3] = { ["type"] = "none", ["id"] = 0 }, [4] = { ["type"] = "item", ["id"] = 40117 } }, [1] = 50639, [2] = 50607, [3] = 51915, [4] = 49983, [5] = 49906, [6] = 51856 }
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["T10"][11] = { ["slot_name"] = "Finger", ["enhs"] = { [1] = { ["type"] = "none", ["id"] = 0 }, [2] = { ["type"] = "item", ["id"] = 40125 } }, [1] = 52572, [2] = 50693, [3] = 50618, [4] = 50604, [5] = 51878, [6] = 50657 }
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["T10"][12] = { ["slot_name"] = "Trinket", ["enhs"] = { }, [1] = 50363, [2] = 47131, [3] = 50362, [4] = 50343, [5] = 47115, [6] = 50342 }
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["T10"][13] = { ["slot_name"] = "Weapon", ["enhs"] = { [1] = { ["type"] = "spell", ["id"] = 53344 }, [2] = { ["type"] = "item", ["id"] = 40117 }, [3] = { ["type"] = "none", ["id"] = 0 }, [4] = { ["type"] = "item", ["id"] = 40117 }, [5] = { ["type"] = "none", ["id"] = 0 }, [6] = { ["type"] = "item", ["id"] = 40117 } }, [1] = 49623, [2] = 50735, [3] = 50730, [4] = 50603, [5] = 51946, [6] = 50727 }
+Bistooltip_wowtbc_bislists["Death knight"]["Blood dps"]["T10"][14] = { ["slot_name"] = "Relic", ["enhs"] = { }, [1] = 47673, [2] = 50459, [3] = 40207, [4] = 45254, [5] = 40715, [6] = 40822 }
 Bistooltip_wowtbc_bislists["Druid"]["Balance"] = {};
 Bistooltip_wowtbc_bislists["Druid"]["Balance"]["PR"] = {};
 Bistooltip_wowtbc_bislists["Druid"]["Balance"]["T8"] = {};
