@@ -1,4 +1,4 @@
-## Interface: 30402
+## Interface: 30403
 ## Title: BiS-Tooltip
 ## Notes: v7.35. In game BiS lists and item tooltip enrichment.
 ## Author: Hellixoid
