@@ -22,7 +22,7 @@ local db_defaults = {
         phase_index = 1,
         filter_specs = {},
         highlight_spec = {},
-        data_source = Nil,
+        data_source = nil,
         minimap_icon = true,
         tooltip_with_ctrl = false
     }
@@ -214,9 +214,15 @@ local function migrateAddonDB()
         BistooltipAddon.db.char.spec_index = 1
         BistooltipAddon.db.char.phase_index = 1
     end
-    if BistooltipAddon.db.char["data_source"] == Nil then
+    if BistooltipAddon.db.char["data_source"] == nil then
         BistooltipAddon.db.char.data_source = sources.wh
         openSourceSelectDialog()
+    end
+    if BistooltipAddon.db.char.version == 6.1 then
+        BistooltipAddon.db.char.version = 6.2
+        if BistooltipAddon.db.char.filter_specs["Death knight"] and BistooltipAddon.db.char.filter_specs["Death knight"]["Blood dps"] == nil then
+            BistooltipAddon.db.char.filter_specs["Death knight"]["Blood dps"] = true
+        end
     end
 end
 
