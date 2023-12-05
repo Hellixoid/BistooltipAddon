@@ -198,7 +198,7 @@ end
 
 local function drawSpecData()
     clearCheckMarks()
-	clearBoeMarks()
+    clearBoeMarks()
     saveData()
     items = {}
     spells = {}
@@ -377,7 +377,7 @@ function BistooltipAddon:createMainFrame()
 
     main_frame:SetCallback("OnClose", function(widget)
         clearCheckMarks()
-		clearBoeMarks()
+        clearBoeMarks()
         spec_frame = nil
         items = {}
         spells = {}
