@@ -22,6 +22,7 @@ local specDropdown = nil
 local phaseDropDown = nil
 
 local checkmarks = {}
+local boemarks = {}
 
 local isHorde = UnitFactionGroup("player") == "Horde"
 
@@ -45,6 +46,16 @@ local function createItemFrame(item_id, size, with_checkmark)
                 checkMark:SetPoint("CENTER", 6, -8)
                 checkMark:SetTexture("Interface\\AddOns\\Bistooltip\\checkmark-16.tga")
                 table.insert(checkmarks, checkMark)
+            end
+
+            local _, _, _, _, _, _, _, _, _, _, _, _, _, bindType = GetItemInfo(item_id)
+            if(bindType==LE_ITEM_BIND_ON_EQUIP) then
+                local boeMark = item_frame.frame:CreateTexture(nil, "OVERLAY")
+                boeMark:SetWidth(10)
+                boeMark:SetHeight(10)
+                boeMark:SetPoint("TOPLEFT",0,0)
+                boeMark:SetTexture("Interface\\Icons\\INV_Misc_Coin_01")
+                table.insert(boemarks, boeMark)
             end
 
             item_frame:SetCallback("OnClick", function(button)
@@ -178,8 +189,16 @@ local function clearCheckMarks()
     checkmarks = {}
 end
 
+local function clearBoeMarks()
+    for key, value in ipairs(boemarks) do
+        value:SetTexture(nil)
+    end
+    boemarks = {}
+end
+
 local function drawSpecData()
     clearCheckMarks()
+    clearBoeMarks()
     saveData()
     items = {}
     spells = {}
@@ -358,6 +377,7 @@ function BistooltipAddon:createMainFrame()
 
     main_frame:SetCallback("OnClose", function(widget)
         clearCheckMarks()
+        clearBoeMarks()
         spec_frame = nil
         items = {}
         spells = {}
