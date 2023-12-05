@@ -47,6 +47,15 @@ local function createItemFrame(item_id, size, with_checkmark)
                 table.insert(checkmarks, checkMark)
             end
 
+            local _, _, _, _, _, _, _, _, _, _, _, _, _, bindType = GetItemInfo(item_id)
+            if(bindType==LE_ITEM_BIND_ON_EQUIP) then
+                local boeMark = item_frame.frame:CreateTexture(nil, "OVERLAY")
+                boeMark:SetWidth(10)
+                boeMark:SetHeight(10)
+                boeMark:SetPoint("TOPLEFT",0,0)
+                boeMark:SetTexture("Interface\\Icons\\INV_Misc_Coin_01")
+            end
+
             item_frame:SetCallback("OnClick", function(button)
                 SetItemRef(ilink, ilink, "LeftButton");
             end)
