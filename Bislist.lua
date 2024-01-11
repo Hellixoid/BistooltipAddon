@@ -51,9 +51,9 @@ local function createItemFrame(item_id, size, with_checkmark)
             local _, _, _, _, _, _, _, _, _, _, _, _, _, bindType = GetItemInfo(item_id)
             if(bindType==LE_ITEM_BIND_ON_EQUIP) then
                 local boeMark = item_frame.frame:CreateTexture(nil, "OVERLAY")
-                boeMark:SetWidth(10)
-                boeMark:SetHeight(10)
-                boeMark:SetPoint("TOPLEFT",0,0)
+                boeMark:SetWidth(12)
+                boeMark:SetHeight(12)
+                boeMark:SetPoint("TOPLEFT",2,-5)
                 boeMark:SetTexture("Interface\\Icons\\INV_Misc_Coin_01")
                 table.insert(boemarks, boeMark)
             end
