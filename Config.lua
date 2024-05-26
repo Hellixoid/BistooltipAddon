@@ -207,7 +207,7 @@ end
 
 local function migrateAddonDB()
     if not BistooltipAddon.db.char["version"] then
-        BistooltipAddon.db.char.version = 6.1
+        BistooltipAddon.db.char.version = 8.0
         BistooltipAddon.db.char.highlight_spec = {}
         BistooltipAddon.db.char.filter_specs = {}
         BistooltipAddon.db.char.class_index = 1
@@ -223,6 +223,17 @@ local function migrateAddonDB()
         if BistooltipAddon.db.char.filter_specs["Death knight"] and BistooltipAddon.db.char.filter_specs["Death knight"]["Blood dps"] == nil then
             BistooltipAddon.db.char.filter_specs["Death knight"]["Blood dps"] = true
         end
+    end
+    if BistooltipAddon.db.char.version == 6.2 then
+        if BistooltipAddon.db.char.filter_specs["Death knight"] and BistooltipAddon.db.char.filter_specs["Death knight"]["Blood dps"] ~= nil then
+            BistooltipAddon.db.char.filter_specs["Death knight"]["Blood dps"] = nil
+        end
+        BistooltipAddon.db.char.version = 8.0
+        BistooltipAddon.db.char.highlight_spec = {}
+        BistooltipAddon.db.char.filter_specs = {}
+        BistooltipAddon.db.char.class_index = 1
+        BistooltipAddon.db.char.spec_index = 1
+        BistooltipAddon.db.char.phase_index = 1
     end
 end
 
