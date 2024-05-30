@@ -143,6 +143,9 @@ local function createEnhancementsFrame(enhancements)
 end
 
 local function drawItemSlot(slot)
+    if slot[1] == -1 then
+        return
+    end
     local f = AceGUI:Create("Label")
     f:SetText(slot.slot_name)
     f:SetFont("Fonts\\FRIZQT__.TTF", 14, "")
