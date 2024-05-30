@@ -178,6 +178,12 @@ local function openSourceSelectDialog()
     frame:SetLayout("List")
     frame:SetTitle(BistooltipAddon.AddonNameAndVersion)
 
+        -- Add the frame as a global variable under the name `MyGlobalFrameName`
+    _G[BistooltipAddon.AddonNameAndVersion] = frame.frame
+    -- Register the global variable `MyGlobalFrameName` as a "special frame"
+    -- so that it is closed when the escape key is pressed.
+    tinsert(UISpecialFrames, BistooltipAddon.AddonNameAndVersion)
+
     local labelEmpty = AceGUI:Create("Label")
     labelEmpty:SetFont("Fonts\\FRIZQT__.TTF", 14, "")
     labelEmpty:SetText(" ")

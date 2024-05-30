@@ -41,6 +41,7 @@ end
 
 local function printSpecLine(tooltip, slot, class_name, spec_name)
     local slot_name = slot.name
+    local suffix = slot.suffix
     local slot_ranks = slot.ranks
     local prefix = "   "
     if BistooltipAddon.db.char.filter_class_names then
@@ -50,13 +51,25 @@ local function printSpecLine(tooltip, slot, class_name, spec_name)
     if (slot_name == "Off hand" or slot_name == "Weapon" or slot_name == "Weapon 1h" or slot_name == "Weapon 2h") then
         left_text = left_text .. " (" .. slot_name .. ")"
     end
+
     local color_r = 1
     local color_g = 0.8
     local color_b = 0
+
     if specHighlighted(class_name, spec_name) then
         color_r = 0.074
         color_g = 0.964
         color_b = 0.129
+    else
+            if class_name == "Death knight" then
+            color_r,color_g,color_b = GetClassColor("DEATHKNIGHT")
+        else
+            color_r,color_g,color_b = GetClassColor(string.upper(class_name))
+        end
+    end
+
+    if (suffix ~= "") then
+        left_text = left_text .. " " .. suffix
     end
     LibExtraTip:AddDoubleLine(
             tooltip, left_text, slot_ranks,
