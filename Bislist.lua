@@ -26,6 +26,8 @@ local boemarks = {}
 
 local isHorde = UnitFactionGroup("player") == "Horde"
 
+local bisListFrameName = "BistooltipAddonBisListFrame"
+
 local function createItemFrame(item_id, size, with_checkmark)
     if item_id < 0 then
         local f = AceGUI:Create("Label")
@@ -368,12 +370,8 @@ function BistooltipAddon:createMainFrame()
     main_frame:SetWidth(450)
     main_frame.frame:SetResizeBounds(450, 300)
 
-    --main_frame.frame:SetScript("OnKeyDown", function(self, key)
-    --    if key == "ESCAPE" then
-    --        BistooltipAddon:closeMainFrame()
-    --    end
-    --end)
-    --main_frame.frame:SetPropagateKeyboardInput(false)
+    _G[bisListFrameName] = main_frame.frame
+    tinsert(UISpecialFrames, bisListFrameName)
 
     main_frame:SetCallback("OnClose", function(widget)
         clearCheckMarks()
