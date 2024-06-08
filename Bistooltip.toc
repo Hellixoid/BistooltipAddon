@@ -1,9 +1,9 @@
 ## Interface: 40400
 ## Title: BiS-Tooltip
-## Notes: v8.04. In game BiS lists and item tooltip enrichment.
+## Notes: v8.05. In game BiS lists and item tooltip enrichment.
 ## Author: Hellixoid
 ## Author: Dweem
-## Version: 8.04
+## Version: 8.05
 ## SavedVariables: BisTooltipDB
 ## OptionalDeps:
 
