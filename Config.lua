@@ -237,15 +237,13 @@ local function migrateAddonDB()
     end
 end
 
-local config_shown = false
 function BistooltipAddon:openConfigDialog()
-    if config_shown then
-        InterfaceOptionsFrame_Show()
+    if AceConfigDialog.OpenFrames[BistooltipAddon.AceAddonName] then
+        AceConfigDialog:Close(BistooltipAddon.AceAddonName)
     else
-        InterfaceOptionsFrame_OpenToCategory(BistooltipAddon.AceAddonName)
-        InterfaceOptionsFrame_OpenToCategory(BistooltipAddon.AceAddonName)
+        print(BistooltipAddon.AceAddonName)
+        AceConfigDialog:Open(BistooltipAddon.AceAddonName)
     end
-    config_shown = not (config_shown)
 end
 
 local function enableSpec(spec_name)

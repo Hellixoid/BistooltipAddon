@@ -51,7 +51,7 @@ local function createItemFrame(item_id, size, with_checkmark)
             end
 
             local _, _, _, _, _, _, _, _, _, _, _, _, _, bindType = GetItemInfo(item_id)
-            if(bindType==LE_ITEM_BIND_ON_EQUIP) then
+            if(bindType==2) then
                 local boeMark = item_frame.frame:CreateTexture(nil, "OVERLAY")
                 boeMark:SetWidth(12)
                 boeMark:SetHeight(12)
