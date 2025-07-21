@@ -3,7 +3,8 @@ Bistooltip_wowtbc_bislists["Death knight"] = {};
 Bistooltip_wowtbc_bislists["Druid"] = {};
 Bistooltip_wowtbc_bislists["Hunter"] = {};
 Bistooltip_wowtbc_bislists["Mage"] = {};
-Bistooltip_wowtbc_bislists["MonkPaladin"] = {};
+Bistooltip_wowtbc_bislists["Monk"] = {};
+Bistooltip_wowtbc_bislists["Paladin"] = {};
 Bistooltip_wowtbc_bislists["Priest"] = {};
 Bistooltip_wowtbc_bislists["Rogue"] = {};
 Bistooltip_wowtbc_bislists["Shaman"] = {};
@@ -31,29 +32,37 @@ Bistooltip_wowtbc_classes[4] = { ["name"] = "Mage", ["specs"] = {
     [2] = "Fire",
     [3] = "Frost"
 }};
-Bistooltip_wowtbc_classes[5] = { ["name"] = "MonkPaladin", ["specs"] = { 
+Bistooltip_wowtbc_classes[5] = { ["name"] = "Monk", ["specs"] = { 
+    [1] = "Brewmaster",
+    [2] = "Mistweaver",
+    [3] = "Windwalker"
 }};
-Bistooltip_wowtbc_classes[6] = { ["name"] = "Priest", ["specs"] = { 
+Bistooltip_wowtbc_classes[6] = { ["name"] = "Paladin", ["specs"] = { 
+    [1] = "Holy",
+    [2] = "Protection",
+    [3] = "Retribution"
+}};
+Bistooltip_wowtbc_classes[7] = { ["name"] = "Priest", ["specs"] = { 
     [1] = "Discipline",
     [2] = "Holy",
     [3] = "Shadow"
 }};
-Bistooltip_wowtbc_classes[7] = { ["name"] = "Rogue", ["specs"] = { 
+Bistooltip_wowtbc_classes[8] = { ["name"] = "Rogue", ["specs"] = { 
     [1] = "Assassination",
     [2] = "Combat",
     [3] = "Subtlety"
 }};
-Bistooltip_wowtbc_classes[8] = { ["name"] = "Shaman", ["specs"] = { 
+Bistooltip_wowtbc_classes[9] = { ["name"] = "Shaman", ["specs"] = { 
     [1] = "Elemental",
     [2] = "Enhancement",
     [3] = "Restoration"
 }};
-Bistooltip_wowtbc_classes[9] = { ["name"] = "Warlock", ["specs"] = { 
+Bistooltip_wowtbc_classes[10] = { ["name"] = "Warlock", ["specs"] = { 
     [1] = "Affliction",
     [2] = "Demonology",
     [3] = "Destruction"
 }};
-Bistooltip_wowtbc_classes[10] = { ["name"] = "Warrior", ["specs"] = { 
+Bistooltip_wowtbc_classes[11] = { ["name"] = "Warrior", ["specs"] = { 
     [1] = "Arms",
     [2] = "Fury",
     [3] = "Protection"

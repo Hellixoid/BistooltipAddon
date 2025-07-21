@@ -156,7 +156,13 @@ local configTable = {
 local function buildFilterSpecOptions()
     local filter_specs_options = {}
     for ci, class in ipairs(Bistooltip_classes) do
+        print(ci)
+        print(class)
         for si, spec in ipairs(Bistooltip_classes[ci].specs) do
+            print(si .. spec)
+
+            print(class.name)
+            print(spec)
             local option_val = "|T" .. Bistooltip_spec_icons[class.name][spec] .. ":16|t " .. class.name .. " " .. spec
             local option_key = ci .. ":" .. si
             filter_specs_options[option_key] = option_val
@@ -206,8 +212,8 @@ local function openSourceSelectDialog()
 end
 
 local function migrateAddonDB()
-    if not BistooltipAddon.db.char["version"] then
-        BistooltipAddon.db.char.version = 8.0
+    if not BistooltipAddon.db.char["version"] or BistooltipAddon.db.char.version < 9.0 then
+        BistooltipAddon.db.char.version = 9.0
         BistooltipAddon.db.char.highlight_spec = {}
         BistooltipAddon.db.char.filter_specs = {}
         BistooltipAddon.db.char.class_index = 1
@@ -217,23 +223,6 @@ local function migrateAddonDB()
     if BistooltipAddon.db.char["data_source"] == nil then
         BistooltipAddon.db.char.data_source = sources.wh
         openSourceSelectDialog()
-    end
-    if BistooltipAddon.db.char.version == 6.1 then
-        BistooltipAddon.db.char.version = 6.2
-        if BistooltipAddon.db.char.filter_specs["Death knight"] and BistooltipAddon.db.char.filter_specs["Death knight"]["Blood dps"] == nil then
-            BistooltipAddon.db.char.filter_specs["Death knight"]["Blood dps"] = true
-        end
-    end
-    if BistooltipAddon.db.char.version == 6.2 then
-        if BistooltipAddon.db.char.filter_specs["Death knight"] and BistooltipAddon.db.char.filter_specs["Death knight"]["Blood dps"] ~= nil then
-            BistooltipAddon.db.char.filter_specs["Death knight"]["Blood dps"] = nil
-        end
-        BistooltipAddon.db.char.version = 8.0
-        BistooltipAddon.db.char.highlight_spec = {}
-        BistooltipAddon.db.char.filter_specs = {}
-        BistooltipAddon.db.char.class_index = 1
-        BistooltipAddon.db.char.spec_index = 1
-        BistooltipAddon.db.char.phase_index = 1
     end
 end
 
