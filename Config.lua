@@ -11,8 +11,8 @@ local sources = {
 }
 
 Bistooltip_source_to_url = {
-    ["wh"] = "wowhead.com/cata",
-    ["wowtbc"] = "wowtbc.gg/cata"
+    ["wh"] = "wowhead.com/mop-classic",
+    ["wowtbc"] = "wowtbc.gg/mop"
 }
 
 local db_defaults = {
@@ -156,13 +156,7 @@ local configTable = {
 local function buildFilterSpecOptions()
     local filter_specs_options = {}
     for ci, class in ipairs(Bistooltip_classes) do
-        print(ci)
-        print(class)
         for si, spec in ipairs(Bistooltip_classes[ci].specs) do
-            print(si .. spec)
-
-            print(class.name)
-            print(spec)
             local option_val = "|T" .. Bistooltip_spec_icons[class.name][spec] .. ":16|t " .. class.name .. " " .. spec
             local option_key = ci .. ":" .. si
             filter_specs_options[option_key] = option_val
@@ -230,7 +224,6 @@ function BistooltipAddon:openConfigDialog()
     if AceConfigDialog.OpenFrames[BistooltipAddon.AceAddonName] then
         AceConfigDialog:Close(BistooltipAddon.AceAddonName)
     else
-        print(BistooltipAddon.AceAddonName)
         AceConfigDialog:Open(BistooltipAddon.AceAddonName)
     end
 end
