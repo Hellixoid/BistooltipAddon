@@ -16,6 +16,7 @@ local spec_frame = nil
 local items = {}
 local spells = {}
 local main_frame = nil
+local data_source_dropdown
 
 local classDropdown = nil
 local specDropdown = nil
@@ -51,11 +52,11 @@ local function createItemFrame(item_id, size, with_checkmark)
             end
 
             local _, _, _, _, _, _, _, _, _, _, _, _, _, bindType = GetItemInfo(item_id)
-            if(bindType==2) then
+            if (bindType == 2) then
                 local boeMark = item_frame.frame:CreateTexture(nil, "OVERLAY")
                 boeMark:SetWidth(12)
                 boeMark:SetHeight(12)
-                boeMark:SetPoint("TOPLEFT",2,-5)
+                boeMark:SetPoint("TOPLEFT", 2, -5)
                 boeMark:SetTexture("Interface\\Icons\\INV_Misc_Coin_01")
                 table.insert(boemarks, boeMark)
             end
@@ -188,7 +189,9 @@ local function saveData()
 end
 
 local function saveWindowPosition()
-    if not main_frame then return end
+    if not main_frame then
+        return
+    end
     local point, _, relativePoint, x, y = main_frame.frame:GetPoint()
     local width = main_frame.frame:GetWidth()
     local height = main_frame.frame:GetHeight()
@@ -203,7 +206,9 @@ local function saveWindowPosition()
 end
 
 local function loadWindowPosition()
-    if not main_frame or not BistooltipAddon.db.char.bis_list_window then return end
+    if not main_frame or not BistooltipAddon.db.char.bis_list_window then
+        return
+    end
     local pos = BistooltipAddon.db.char.bis_list_window
     main_frame:ClearAllPoints()
     main_frame:SetPoint(pos.point, UIParent, pos.relativePoint, pos.x, pos.y)
@@ -398,8 +403,8 @@ function BistooltipAddon:createMainFrame()
     end
     main_frame = AceGUI:Create("Frame")
     if BistooltipAddon.db.char.bis_list_window and
-       BistooltipAddon.db.char.bis_list_window.width and
-       BistooltipAddon.db.char.bis_list_window.height then
+            BistooltipAddon.db.char.bis_list_window.width and
+            BistooltipAddon.db.char.bis_list_window.height then
         main_frame:SetWidth(BistooltipAddon.db.char.bis_list_window.width)
         main_frame:SetHeight(BistooltipAddon.db.char.bis_list_window.height)
     else
@@ -421,8 +426,12 @@ function BistooltipAddon:createMainFrame()
         spells = {}
         AceGUI:Release(widget)
         main_frame = nil
+        if data_source_dropdown then
+            AceGUI:Release(data_source_dropdown)
+            data_source_dropdown = nil
+        end
     end)
-    
+
     main_frame.frame:SetScript("OnMouseUp", function(self)
         if self:IsMovable() then
             self:StopMovingOrSizing()
@@ -431,15 +440,41 @@ function BistooltipAddon:createMainFrame()
     end)
     main_frame:SetLayout("List")
     main_frame:SetTitle(BistooltipAddon.AddonNameAndVersion)
-    main_frame:SetStatusText(Bistooltip_source_to_url[BistooltipAddon.db.char["data_source"]])
-    
-    -- Load saved position or center the window
+
+    main_frame:SetStatusText("")
+    if main_frame.statustext then
+        main_frame.statustext:Hide()
+    end
+
+    data_source_dropdown = AceGUI:Create("Dropdown")
+    data_source_dropdown:SetList(Bistooltip_source_to_url)
+    data_source_dropdown:SetValue(BistooltipAddon.db.char.data_source)
+    data_source_dropdown:SetWidth(150)
+
+    local status_bar_bg = select(2, main_frame.frame:GetChildren())
+    if status_bar_bg then
+        status_bar_bg:Hide()
+    end
+
+    local dropdown_frame = data_source_dropdown.frame
+    dropdown_frame:SetParent(main_frame.frame)
+    dropdown_frame:ClearAllPoints()
+    dropdown_frame:SetPoint("BOTTOMLEFT", 15, 15)
+    dropdown_frame:SetPoint("BOTTOMRIGHT", -132, 15)
+    --dropdown_frame:SetFrameLevel(main_frame.frame:GetFrameLevel() + 10)
+    dropdown_frame:Show()
+
+    data_source_dropdown:SetCallback("OnValueChanged", function(_, _, key)
+        BistooltipAddon.db.char.data_source = key
+        BistooltipAddon:changeDataSource(key)
+    end)
+
     if BistooltipAddon.db.char.bis_list_window then
         loadWindowPosition()
     else
         main_frame:SetPoint("CENTER", UIParent, "CENTER")
     end
-    
+
     drawDropdowns()
     createSpecFrame()
     drawSpecData()

@@ -228,14 +228,14 @@ function BistooltipAddon:openConfigDialog()
     end
 end
 
-local function enableSpec(spec_name)
+local function enableDataSource(data_source)
 
-    if spec_name == sources.wowtbc then
+    if data_source == sources.wowtbc then
         Bistooltip_bislists = Bistooltip_wowtbc_bislists;
         Bistooltip_items = Bistooltip_wowtbc_items;
         Bistooltip_classes = Bistooltip_wowtbc_classes;
         Bistooltip_phases = Bistooltip_wowtbc_phases;
-    elseif spec_name == sources.wh then
+    elseif data_source == sources.wh then
         Bistooltip_bislists = Bistooltip_wh_bislists;
         Bistooltip_items = Bistooltip_wh_items;
         Bistooltip_classes = Bistooltip_wh_classes;
@@ -288,7 +288,7 @@ function BistooltipAddon:changeDataSource(spec_name)
     --BistooltipAddon.db.char.class_index = 1
     --BistooltipAddon.db.char.spec_index = 1
     --BistooltipAddon.db.char.phase_index = 1
-    enableSpec(spec_name)
+    enableDataSource(spec_name)
 
     BistooltipAddon:initBislists()
     BistooltipAddon:reloadData()
@@ -306,5 +306,5 @@ function BistooltipAddon:initConfig()
     Bistooltip_bislists = {};
     Bistooltip_items = {};
 
-    enableSpec(BistooltipAddon.db.char["data_source"])
+    enableDataSource(BistooltipAddon.db.char["data_source"])
 end
