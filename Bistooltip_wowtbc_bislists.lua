@@ -487,7 +487,7 @@ Bistooltip_wowtbc_bislists["Monk"]["Brewmaster"]["P1"][8] = { ["slot_name"] = "W
 Bistooltip_wowtbc_bislists["Monk"]["Brewmaster"]["P1"][9] = { ["slot_name"] = "Legs", ["enhs"] = { [1] = { ["type"] = "item", ["id"] = 83764 }, [2] = { ["type"] = "item", ["id"] = 76659 } }, [1] = 87097, [2] = 90504, [3] = 87013, [4] = 89090, [5] = 84877, [6] = 82851 }
 Bistooltip_wowtbc_bislists["Monk"]["Brewmaster"]["P1"][10] = { ["slot_name"] = "Feet", ["enhs"] = { [1] = { ["type"] = "spell", ["id"] = 104409 }, [2] = { ["type"] = "item", ["id"] = 76697 } }, [1] = 86943, [2] = 86984, [3] = 90442, [4] = 88868, [5] = 81249, [6] = 81688 }
 Bistooltip_wowtbc_bislists["Monk"]["Brewmaster"]["P1"][11] = { ["slot_name"] = "Finger", ["enhs"] = { }, [1] = 90503, [2] = 86974, [3] = 89932, [4] = 90437, [5] = 90861, [6] = 89070 }
-Bistooltip_wowtbc_bislists["Monk"]["Brewmaster"]["P1"][12] = { ["slot_name"] = "Trinket", ["enhs"] = { }, [1] = 87167, [2] = 79328, [3] = 87057, [4] = 87079, [5] = 89082, [6] = 81267 }
+Bistooltip_wowtbc_bislists["Monk"]["Brewmaster"]["P1"][12] = { ["slot_name"] = "Trinket", ["enhs"] = { }, [1] = 87167, [2] = 87057, [3] = 79328, [4] = 87079, [5] = 89082, [6] = 81267 }
 Bistooltip_wowtbc_bislists["Monk"]["Brewmaster"]["P1"][13] = { ["slot_name"] = "Weapon", ["enhs"] = { [1] = { ["type"] = "spell", ["id"] = 104434 }, [2] = { ["type"] = "item", ["id"] = 89873 } }, [1] = 86988, [2] = 87032, [3] = 87543, [4] = 88150, [5] = 81286, [6] = 81273 }
 Bistooltip_wowtbc_bislists["Monk"]["Brewmaster"]["P1"][14] = { ["slot_name"] = "Off hand", ["enhs"] = { [1] = { ["type"] = "spell", ["id"] = 104434 } }, [1] = 86988, [2] = 87032, [3] = 87543, [4] = 88150, [5] = 81286, [6] = 81273 }
 Bistooltip_wowtbc_bislists["Monk"]["Mistweaver"] = {};
