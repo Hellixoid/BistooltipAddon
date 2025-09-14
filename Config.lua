@@ -87,7 +87,7 @@ local configTable = {
             values = Bistooltip_source_to_url,
             set = function(info, key, val)
                 BistooltipAddon.db.char.data_source = key
-                BistooltipAddon:changeSpec(key)
+                BistooltipAddon:changeDataSource(key)
             end,
             get = function(info, key)
                 return BistooltipAddon.db.char.data_source
@@ -197,7 +197,7 @@ local function openSourceSelectDialog()
     local sourceDropdown = AceGUI:Create("Dropdown")
     sourceDropdown:SetCallback("OnValueChanged", function(_, _, key)
         BistooltipAddon.db.char.data_source = key
-        BistooltipAddon:changeSpec(key)
+        BistooltipAddon:changeDataSource(key)
     end)
     sourceDropdown:SetRelativeWidth(1)
     sourceDropdown:SetList(Bistooltip_source_to_url)
@@ -283,10 +283,11 @@ function BistooltipAddon:addMapIcon()
     end
 end
 
-function BistooltipAddon:changeSpec(spec_name)
-    BistooltipAddon.db.char.class_index = 1
-    BistooltipAddon.db.char.spec_index = 1
-    BistooltipAddon.db.char.phase_index = 1
+function BistooltipAddon:changeDataSource(spec_name)
+    --reset selected spec (commented now because we have same spec list for both data sources)
+    --BistooltipAddon.db.char.class_index = 1
+    --BistooltipAddon.db.char.spec_index = 1
+    --BistooltipAddon.db.char.phase_index = 1
     enableSpec(spec_name)
 
     BistooltipAddon:initBislists()
