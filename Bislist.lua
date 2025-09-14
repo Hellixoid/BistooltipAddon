@@ -190,19 +190,28 @@ end
 local function saveWindowPosition()
     if not main_frame then return end
     local point, _, relativePoint, x, y = main_frame.frame:GetPoint()
-    BistooltipAddon.db.char.window_position = {
+    local width = main_frame.frame:GetWidth()
+    local height = main_frame.frame:GetHeight()
+    BistooltipAddon.db.char.bis_list_window = {
         point = point,
         relativePoint = relativePoint,
         x = x,
-        y = y
+        y = y,
+        width = width,
+        height = height
     }
 end
 
 local function loadWindowPosition()
-    if not main_frame or not BistooltipAddon.db.char.window_position then return end
-    local pos = BistooltipAddon.db.char.window_position
+    if not main_frame or not BistooltipAddon.db.char.bis_list_window then return end
+    local pos = BistooltipAddon.db.char.bis_list_window
     main_frame:ClearAllPoints()
     main_frame:SetPoint(pos.point, UIParent, pos.relativePoint, pos.x, pos.y)
+    if pos.width and pos.height then
+        main_frame:SetWidth(pos.width)
+        main_frame:SetHeight(pos.height)
+        main_frame.frame:SetResizeBounds(450, 300, UIParent:GetWidth(), UIParent:GetHeight())
+    end
 end
 
 local function clearCheckMarks()
@@ -388,7 +397,16 @@ function BistooltipAddon:createMainFrame()
         return
     end
     main_frame = AceGUI:Create("Frame")
-    main_frame:SetWidth(450)
+    if BistooltipAddon.db.char.bis_list_window and
+       BistooltipAddon.db.char.bis_list_window.width and
+       BistooltipAddon.db.char.bis_list_window.height then
+        main_frame:SetWidth(BistooltipAddon.db.char.bis_list_window.width)
+        main_frame:SetHeight(BistooltipAddon.db.char.bis_list_window.height)
+    else
+        main_frame:SetWidth(450)
+        main_frame:SetHeight(500)
+    end
+
     main_frame.frame:SetResizeBounds(450, 300)
 
     _G[bisListFrameName] = main_frame.frame
@@ -405,7 +423,6 @@ function BistooltipAddon:createMainFrame()
         main_frame = nil
     end)
     
-    -- Save position when window is moved
     main_frame.frame:SetScript("OnMouseUp", function(self)
         if self:IsMovable() then
             self:StopMovingOrSizing()
@@ -417,7 +434,7 @@ function BistooltipAddon:createMainFrame()
     main_frame:SetStatusText(Bistooltip_source_to_url[BistooltipAddon.db.char["data_source"]])
     
     -- Load saved position or center the window
-    if BistooltipAddon.db.char.window_position then
+    if BistooltipAddon.db.char.bis_list_window then
         loadWindowPosition()
     else
         main_frame:SetPoint("CENTER", UIParent, "CENTER")
