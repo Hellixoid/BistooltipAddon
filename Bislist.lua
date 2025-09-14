@@ -187,6 +187,24 @@ local function saveData()
     BistooltipAddon.db.char.phase_index = phase_index
 end
 
+local function saveWindowPosition()
+    if not main_frame then return end
+    local point, _, relativePoint, x, y = main_frame.frame:GetPoint()
+    BistooltipAddon.db.char.window_position = {
+        point = point,
+        relativePoint = relativePoint,
+        x = x,
+        y = y
+    }
+end
+
+local function loadWindowPosition()
+    if not main_frame or not BistooltipAddon.db.char.window_position then return end
+    local pos = BistooltipAddon.db.char.window_position
+    main_frame:ClearAllPoints()
+    main_frame:SetPoint(pos.point, UIParent, pos.relativePoint, pos.x, pos.y)
+end
+
 local function clearCheckMarks()
     for key, value in ipairs(checkmarks) do
         value:SetTexture(nil)
@@ -377,6 +395,7 @@ function BistooltipAddon:createMainFrame()
     tinsert(UISpecialFrames, bisListFrameName)
 
     main_frame:SetCallback("OnClose", function(widget)
+        saveWindowPosition()
         clearCheckMarks()
         clearBoeMarks()
         spec_frame = nil
@@ -385,9 +404,25 @@ function BistooltipAddon:createMainFrame()
         AceGUI:Release(widget)
         main_frame = nil
     end)
+    
+    -- Save position when window is moved
+    main_frame.frame:SetScript("OnMouseUp", function(self)
+        if self:IsMovable() then
+            self:StopMovingOrSizing()
+            saveWindowPosition()
+        end
+    end)
     main_frame:SetLayout("List")
     main_frame:SetTitle(BistooltipAddon.AddonNameAndVersion)
     main_frame:SetStatusText(Bistooltip_source_to_url[BistooltipAddon.db.char["data_source"]])
+    
+    -- Load saved position or center the window
+    if BistooltipAddon.db.char.window_position then
+        loadWindowPosition()
+    else
+        main_frame:SetPoint("CENTER", UIParent, "CENTER")
+    end
+    
     drawDropdowns()
     createSpecFrame()
     drawSpecData()
