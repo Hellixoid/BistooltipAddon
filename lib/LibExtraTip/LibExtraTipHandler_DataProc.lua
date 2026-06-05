@@ -87,6 +87,8 @@ if status.filetrackerHandler ~= LOAD_NEW then return end
 status.filetrackerHandler = LOAD_START
 versions.HANDLER = "DataProc"
 
+local issecretvalue = issecretvalue or function() end -- if issecretvalue doesn't exist use the empty function -- ### hybrid support for different WoW clients
+
 --[[
 List of accessors
 {Extracted from Interface\SharedXML\Tooltip\TooltipdataHandler.lua from 10.0.2 47213 Jan 2023}
@@ -182,10 +184,19 @@ local getterGatherdata
 local function GenerateGatherdata()
 	-- Locals to be used as Upvalues
 	local GetMerchantItemInfo = GetMerchantItemInfo
+	if C_MerchantFrame and C_MerchantFrame.GetItemInfo then -- ### hybrid : it appears Classic MoP uses DataProc and still needs old GetMerchantItemInfo
+		GetMerchantItemInfo = function(index)
+			local info = C_MerchantFrame.GetItemInfo(index)
+			if info then
+				return info.name, info.texture, info.price, info.stackCount, info.numAvailable, info.isPurchasable, info.isUsable, info.hasExtendedCost, info.currencyID
+			end
+		end
+	end
+	local GetMerchantItemLink = GetMerchantItemLink
 	local GetContainerItemInfo = C_Container.GetContainerItemInfo
 	local GetInventoryItemLink = GetInventoryItemLink
 	local GetInventoryItemCount = GetInventoryItemCount
-	local GetRecipeFixedReagentItemLink = C_TradeSkillUI.GetRecipeFixedReagentItemLink
+	-- local GetRecipeFixedReagentItemLink = C_TradeSkillUI.GetRecipeFixedReagentItemLink -- ### removed in 12.0.0, see GetRecipeReagentItem below
 	local GetInboxItemInfo = GetInboxItem -- local name changed to avoid conflict with Getter name
 	local GetSendMailItemInfo = GetSendMailItem
 	local GetTradePlayerItemInfo = GetTradePlayerItemInfo
@@ -214,7 +225,7 @@ local function GenerateGatherdata()
 		GetMerchantItem = function(reg, getterArgs)
 			local index = getterArgs[1]
 			local additional = reg.additional
-			local _,_,p,q,na,cu,ec = GetMerchantItemInfo(index)
+			local _,_,p,q,na,cp,cu,ec,cID = GetMerchantItemInfo(index)
 			additional.quantity = q
 			additional.event = "SetMerchantItem"
 			additional.eventIndex = index
@@ -222,6 +233,7 @@ local function GenerateGatherdata()
 			additional.numAvailable = na
 			additional.canUse = cu
 			additional.extendedCost = ec
+			additional.currencyID = cID
 			additional.link = GetMerchantItemLink(index)
 		end,
 
@@ -261,8 +273,8 @@ local function GenerateGatherdata()
 			end
 			--]]
 
-			additional.link = GetRecipeFixedReagentItemLink(recipeID, reagentIndex)
-			-- ### todo: handle 'quality' reagents uing C_TradeSkillUI.GetRecipeQualityReagentItemLink(recipeID, dataSlotIndex, qualityIndex)
+			-- additional.link = GetRecipeFixedReagentItemLink(recipeID, reagentIndex) -- ### GetRecipeFixedReagentItemLink removed in 12.0.0
+			-- ### todo: find another way to get a link
 		end,
 
 		-- GetVoidItem
@@ -767,11 +779,11 @@ local function GenerateTDPHooks()
 		end
 
 		local guid = data.guid
-		if not guid then return end
+		if not guid or issecretvalue(guid) then return end
 		local unit = UnitTokenFromGUID(guid)
-		if not unit then return end
+		if not unit or issecretvalue(unit) then return end
 		local name = UnitName(unit)
-		if not name then return end
+		if not name or issecretvalue(name) then return end
 		-- ### todo: if any of this info is missing, can we extract from gather function instead? would be stored in additional table
 		-- ### Note: the Blizzard code this is derived from does include nils checks, so we shall assume these functions can sometimes fail
 
