@@ -6,6 +6,17 @@
 ## Version: 9.15
 ## SavedVariables: BisTooltipDB
 ## OptionalDeps:
+## Category: Equipment
+## Category-deDE: Ausrüstung
+## Category-esES: Equipo
+## Category-esMX: Equipo
+## Category-frFR: Équipement
+## Category-itIT: Equipaggiamento
+## Category-koKR: 장비
+## Category-ptBR: Equipamento
+## Category-ruRU: Экипировка
+## Category-zhCN: 装备
+## Category-zhTW: 裝備
 
 # Libs.
 lib\LibStub\LibStub.lua
