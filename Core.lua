@@ -1,17 +1,15 @@
-BistooltipAddon = LibStub("AceAddon-3.0"):NewAddon("Bis-Tooltip")
---local AceAddon =
+BistooltipAddon = BistooltipAddon or {}
+BistooltipAddon.AddonNameAndVersion = "Bis-Tooltip v9.17"
 
 Bistooltip_char_equipment = {}
 
 local function createEquipmentWatcher()
     local frame = CreateFrame("Frame")
     frame:Hide()
-
     frame:SetScript("OnEvent", frame.Show)
     frame:RegisterEvent("BAG_UPDATE")
 
     local flag = false
-
     frame:SetScript("OnUpdate", function(self)
         self:Hide()
         if flag == false then
@@ -25,7 +23,7 @@ local function createEquipmentWatcher()
                     end
                 end
             end
-            for i=0,18 do
+            for i = 0, 18 do
                 local itemID = GetInventoryItemID("player", i)
                 if itemID ~= nil then
                     collection[itemID] = 2
@@ -37,12 +35,19 @@ local function createEquipmentWatcher()
     end)
 end
 
-function BistooltipAddon:OnInitialize()
+local initialized = false
+local function init()
+    if initialized then return end
+    initialized = true
+    BistooltipAddon:initDb()
     createEquipmentWatcher()
-    BistooltipAddon.AceAddonName = "Bis-Tooltip"
-    BistooltipAddon.AddonNameAndVersion = "Bis-Tooltip v9.17"
     BistooltipAddon:initConfig()
     BistooltipAddon:addMapIcon()
+    BistooltipAddon:initSpec()
     BistooltipAddon:initBislists()
     BistooltipAddon:initBisTooltip()
 end
+
+local loader = CreateFrame("Frame")
+loader:RegisterEvent("PLAYER_LOGIN")
+loader:SetScript("OnEvent", init)

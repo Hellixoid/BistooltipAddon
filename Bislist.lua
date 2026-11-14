@@ -1,499 +1,552 @@
-local AceGUI = LibStub("AceGUI-3.0")
+BistooltipAddon = BistooltipAddon or {}
+local W = BistooltipAddon.Widgets
+local C
 
-local class = nil
-local spec = nil
-local phase = nil
-local class_index = nil
-local spec_index = nil
-local phase_index = nil
+local main_frame
+local classDD, specDD, phaseDD
+local scroll, content
+local statusText
 
-local class_options = {}
-local class_options_to_class = {}
+local class_index, spec_index, phase_index
 
-local spec_options = {}
-local spec_options_to_spec = {}
-local spec_frame = nil
-local items = {}
-local spells = {}
-local main_frame = nil
-local data_source_dropdown
-
-local classDropdown = nil
-local specDropdown = nil
-local phaseDropDown = nil
-
-local checkmarks = {}
-local boemarks = {}
-
+local WIDTH = 450
+local PAD = 12
+local ENH_X = 102
+local ITEMS_X = 148
+local ITEM_CELL = 48
+local ICON = 40
+local ROW_H = 46
 local isHorde = UnitFactionGroup("player") == "Horde"
 
-local bisListFrameName = "BistooltipAddonBisListFrame"
+-- pools (all children of `content`, positioned absolutely) ------------------
+local itemPool, labelPool, zebraPool, enhPool = {}, {}, {}, {}
+local itemN, labelN, zebraN, enhN
 
-local function createItemFrame(item_id, size, with_checkmark)
-    if item_id < 0 then
-        local f = AceGUI:Create("Label")
-        return f
+local function resetPools()
+    itemN, labelN, zebraN, enhN = 0, 0, 0, 0
+    for _, w in ipairs(itemPool) do w:Hide() end
+    for _, w in ipairs(labelPool) do w:Hide() end
+    for _, w in ipairs(zebraPool) do w:Hide() end
+    for _, w in ipairs(enhPool) do w:Hide() end
+end
+
+local function getLabel()
+    labelN = labelN + 1
+    local fs = labelPool[labelN]
+    if not fs then
+        fs = content:CreateFontString(nil, "OVERLAY")
+        fs:SetFont("Fonts\\FRIZQT__.TTF", 13)
+        labelPool[labelN] = fs
     end
-    local item_frame = AceGUI:Create("Icon")
-    item_frame:SetImageSize(size, size)
-    items[item_id] = Item:CreateFromItemID(item_id);
+    fs:Show()
+    return fs
+end
 
-    if (items[item_id]:GetItemID()) then
-        items[item_id]:ContinueOnItemLoad(function()
-            local ilink = items[item_id]:GetItemLink()
-            item_frame:SetImage(items[item_id]:GetItemIcon())
-            if with_checkmark == true then
-                local checkMark = item_frame.frame:CreateTexture(nil, "OVERLAY")
-                checkMark:SetWidth(32)
-                checkMark:SetHeight(32)
-                checkMark:SetPoint("CENTER", 6, -8)
-                checkMark:SetTexture("Interface\\AddOns\\Bistooltip\\checkmark-16.tga")
-                table.insert(checkmarks, checkMark)
-            end
+local function getZebra()
+    zebraN = zebraN + 1
+    local t = zebraPool[zebraN]
+    if not t then
+        t = content:CreateTexture(nil, "BACKGROUND")
+        t:SetColorTexture(C.rowAlt[1], C.rowAlt[2], C.rowAlt[3], C.rowAlt[4])
+        zebraPool[zebraN] = t
+    end
+    t:Show()
+    return t
+end
 
-            local _, _, _, _, _, _, _, _, _, _, _, _, _, bindType = GetItemInfo(item_id)
-            if (bindType == 2) then
-                local boeMark = item_frame.frame:CreateTexture(nil, "OVERLAY")
-                boeMark:SetWidth(12)
-                boeMark:SetHeight(12)
-                boeMark:SetPoint("TOPLEFT", 2, -5)
-                boeMark:SetTexture("Interface\\Icons\\INV_Misc_Coin_01")
-                table.insert(boemarks, boeMark)
-            end
+local function cellX(i)
+    return ITEMS_X + (i - 1) * ITEM_CELL + (ITEM_CELL - ICON) / 2
+end
 
-            item_frame:SetCallback("OnClick", function(button)
-                SetItemRef(ilink, ilink, "LeftButton");
-            end)
-            item_frame:SetCallback("OnEnter", function(widget)
-                GameTooltip:SetOwner(item_frame.frame)
-                GameTooltip:SetPoint("TOPRIGHT", item_frame.frame, "TOPRIGHT", 220, -13);
-                GameTooltip:SetHyperlink(ilink)
-            end)
-            item_frame:SetCallback("OnLeave", function(widget)
-                GameTooltip:Hide()
-            end)
+local function newItemButton()
+    local btn = CreateFrame("Button", nil, content)
+    btn:SetSize(ICON, ICON)
+    W.bg(btn, { 0.149, 0.153, 0.176, 1 })
+    W.border(btn, C.border)
+    btn.tex = btn:CreateTexture(nil, "ARTWORK")
+    btn.tex:SetPoint("TOPLEFT", 2, -2)
+    btn.tex:SetPoint("BOTTOMRIGHT", -2, 2)
+    btn.tex:SetTexCoord(0.08, 0.92, 0.08, 0.92)
+    btn.check = btn:CreateTexture(nil, "OVERLAY")
+    btn.check:SetSize(18, 18)
+    btn.check:SetPoint("BOTTOMRIGHT", 3, -3)
+    btn.check:SetTexture("Interface\\AddOns\\Bistooltip\\checkmark-16.tga")
+    btn.check:Hide()
+    btn.boe = btn:CreateTexture(nil, "OVERLAY")
+    btn.boe:SetSize(14, 14)
+    btn.boe:SetPoint("TOPLEFT", -3, 3)
+    btn.boe:SetTexture("Interface\\AddOns\\Bistooltip\\icons\\coin.tga")
+    btn.boe:Hide()
+    return btn
+end
+
+local function getItemButton()
+    itemN = itemN + 1
+    local btn = itemPool[itemN]
+    if not btn then btn = newItemButton(); itemPool[itemN] = btn end
+    btn.tex:SetTexture(nil)
+    btn.check:Hide()
+    btn.boe:Hide()
+    for _, t in ipairs(btn.borderTex) do t:SetColorTexture(C.border[1], C.border[2], C.border[3], 1) end
+    btn:SetScript("OnEnter", nil)
+    btn:SetScript("OnLeave", nil)
+    btn:SetScript("OnClick", nil)
+    btn:Show()
+    return btn
+end
+
+local function fillItemButton(btn, item_id, withCheck)
+    local it = Item:CreateFromItemID(item_id)
+    if not it:GetItemID() then return end
+    it:ContinueOnItemLoad(function()
+        if not btn:IsShown() then return end
+        local link = it:GetItemLink()
+        btn.tex:SetTexture(it:GetItemIcon())
+        local quality = select(3, GetItemInfo(item_id))
+        local bindType = select(14, GetItemInfo(item_id))
+        local qc = quality and ITEM_QUALITY_COLORS[quality]
+        if qc then
+            for _, t in ipairs(btn.borderTex) do t:SetColorTexture(qc.r, qc.g, qc.b, 1) end
+        end
+        if bindType == 2 then btn.boe:Show() end
+        if withCheck then btn.check:Show() end
+        btn:SetScript("OnClick", function() if link then SetItemRef(link, link, "LeftButton") end end)
+        btn:SetScript("OnEnter", function(self)
+            GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+            local ok = link and pcall(GameTooltip.SetHyperlink, GameTooltip, link)
+            if not ok then pcall(GameTooltip.SetItemByID, GameTooltip, item_id) end
+            GameTooltip:Show()
         end)
-    end
-    return item_frame
+        btn:SetScript("OnLeave", function() GameTooltip:Hide() end)
+    end)
 end
 
-local function createSpellFrame(spell_id, size)
-    if spell_id < 0 then
-        local f = AceGUI:Create("Label")
-        return f
+local function getEnhIcon()
+    enhN = enhN + 1
+    local b = enhPool[enhN]
+    if not b then
+        b = CreateFrame("Button", nil, content)
+        b:SetSize(16, 16)
+        W.bg(b, { 0.149, 0.153, 0.176, 1 })
+        W.border(b, C.border)
+        b.tex = b:CreateTexture(nil, "ARTWORK")
+        b.tex:SetPoint("TOPLEFT", 1, -1)
+        b.tex:SetPoint("BOTTOMRIGHT", -1, 1)
+        b.tex:SetTexCoord(0.08, 0.92, 0.08, 0.92)
+        enhPool[enhN] = b
     end
-    local spell_frame = AceGUI:Create("Icon")
-    spell_frame:SetImageSize(size, size)
-    spells[spell_id] = Spell:CreateFromSpellID(spell_id);
+    b.tex:SetTexture(nil)
+    b:SetScript("OnEnter", nil); b:SetScript("OnLeave", nil); b:SetScript("OnClick", nil)
+    b:Show()
+    return b
+end
 
-    if (spells[spell_id]:GetSpellID()) then
-        spells[spell_id]:ContinueOnSpellLoad(function()
-            local name, rank, icon, castTime, minRange, maxRange = GetSpellInfo(spell_id)
-            spell_frame:SetImage(icon)
-            local link = GetSpellLink(spell_id)
-            if link == nil then
-                link = "\124cffffd000\124Hspell:" .. spell_id .. "\124h[" .. name .. "]\124h\124r"
-            end
-            spell_frame:SetCallback("OnClick", function(button)
-                SetItemRef(link, link, "LeftButton");
-            end)
-            spell_frame:SetCallback("OnEnter", function(widget)
-                GameTooltip:SetOwner(spell_frame.frame)
-                GameTooltip:SetPoint("TOPRIGHT", spell_frame.frame, "TOPRIGHT", 220, -13);
-                GameTooltip:SetHyperlink(link)
-            end)
-            spell_frame:SetCallback("OnLeave", function(widget)
-                GameTooltip:Hide()
-            end)
+local function fillEnhItem(b, item_id)
+    local it = Item:CreateFromItemID(item_id)
+    if not it:GetItemID() then return end
+    it:ContinueOnItemLoad(function()
+        if not b:IsShown() then return end
+        local link = it:GetItemLink()
+        b.tex:SetTexture(it:GetItemIcon())
+        b:SetScript("OnEnter", function(s)
+            GameTooltip:SetOwner(s, "ANCHOR_RIGHT")
+            local ok = link and pcall(GameTooltip.SetHyperlink, GameTooltip, link)
+            if not ok then pcall(GameTooltip.SetItemByID, GameTooltip, item_id) end
+            GameTooltip:Show()
         end)
-    end
-    return spell_frame
+        b:SetScript("OnLeave", function() GameTooltip:Hide() end)
+        b:SetScript("OnClick", function() if link then SetItemRef(link, link, "LeftButton") end end)
+    end)
 end
 
-local function createEnhancementsFrame(enhancements)
-    local frame = AceGUI:Create("SimpleGroup")
-    frame:SetLayout("Table")
-    frame:SetWidth(40)
-    frame:SetHeight(40)
-    frame:SetUserData("table", {
-        columns = {
-            { weight = 14 },
-            { width = 14 } },
-        spaceV = -10,
-        spaceH = 0,
-        align = "BOTTOMRIGHT"
-    })
-    frame:SetFullWidth(true)
-    frame:SetFullHeight(true)
-    frame:SetHeight(0)
-    frame:SetAutoAdjustHeight(false)
-    for i, enhancement in ipairs(enhancements) do
-        local size = 16
-
-        if enhancement.type == "none" then
-            frame:AddChild(createItemFrame(-1, size))
-        end
-        if enhancement.type == "item" then
-            frame:AddChild(createItemFrame(enhancement.id, size))
-        end
-        if enhancement.type == "spell" then
-            frame:AddChild(createSpellFrame(enhancement.id, size))
-        end
-    end
-    return frame
+local function fillEnhSpell(b, spell_id)
+    local sp = Spell:CreateFromSpellID(spell_id)
+    if not sp:GetSpellID() then return end
+    sp:ContinueOnSpellLoad(function()
+        if not b:IsShown() then return end
+        b.tex:SetTexture(select(3, GetSpellInfo(spell_id)))
+        local link = GetSpellLink(spell_id)
+        b:SetScript("OnEnter", function(s)
+            GameTooltip:SetOwner(s, "ANCHOR_RIGHT")
+            local ok = link and pcall(GameTooltip.SetHyperlink, GameTooltip, link)
+            if not ok then pcall(GameTooltip.SetSpellByID, GameTooltip, spell_id) end
+            GameTooltip:Show()
+        end)
+        b:SetScript("OnLeave", function() GameTooltip:Hide() end)
+        b:SetScript("OnClick", function() if link then SetItemRef(link, link, "LeftButton") end end)
+    end)
 end
 
-local function drawItemSlot(slot)
-    if slot[1] == -1 then
-        return
+-- drawing -------------------------------------------------------------------
+
+local function currentNames()
+    local cl = Bistooltip_classes and Bistooltip_classes[class_index]
+    if not cl then return nil end
+    local sp = cl.specs and cl.specs[spec_index]
+    local ph = Bistooltip_phases and Bistooltip_phases[phase_index]
+    return cl.name, sp, ph
+end
+
+local function drawSpecData()
+    if not content then return end
+    resetPools()
+    local class_name, spec_name, phase_name = currentNames()
+    if not class_name or not spec_name or not phase_name then
+        content:SetHeight(1); if scroll then scroll.updateThumb() end; return
     end
-    local f = AceGUI:Create("Label")
-    f:SetText(slot.slot_name)
-    f:SetFont("Fonts\\FRIZQT__.TTF", 14, "")
-    spec_frame:AddChild(f)
-    spec_frame:AddChild(createEnhancementsFrame(slot.enhs))
-    for i, item_id in ipairs(slot) do
-        if isHorde == true then
-            if Bistooltip_horde_to_ali[item_id] ~= nil then
-                item_id = Bistooltip_horde_to_ali[item_id]
+    local slots = Bistooltip_bislists[class_name]
+        and Bistooltip_bislists[class_name][spec_name]
+        and Bistooltip_bislists[class_name][spec_name][phase_name]
+    if not slots then content:SetHeight(1); if scroll then scroll.updateThumb() end; return end
+
+    local row = 0
+    for _, slot in ipairs(slots) do
+        if slot[1] and slot[1] ~= -1 then
+            local top = -row * ROW_H
+            if row % 2 == 1 then
+                local z = getZebra()
+                z:ClearAllPoints()
+                z:SetPoint("TOPLEFT", content, "TOPLEFT", 0, top)
+                z:SetPoint("TOPRIGHT", content, "TOPRIGHT", 0, top)
+                z:SetHeight(ROW_H)
             end
-        end
-        if item_id ~= nil and Bistooltip_char_equipment[item_id] ~= nil then
-            spec_frame:AddChild(createItemFrame(item_id, 40, true))
-        else
-            spec_frame:AddChild(createItemFrame(item_id, 40))
+            local lbl = getLabel()
+            lbl:SetTextColor(C.textPrimary[1], C.textPrimary[2], C.textPrimary[3], 1)
+            lbl:SetText(slot.slot_name or "")
+            lbl:ClearAllPoints()
+            lbl:SetPoint("LEFT", content, "TOPLEFT", PAD, top - ROW_H / 2)
+            lbl:SetJustifyH("LEFT")
+
+            local ex = ENH_X
+            for _, enh in ipairs(slot.enhs or {}) do
+                if (enh.type == "item" or enh.type == "spell") and enh.id and enh.id > 0 and ex < ITEMS_X - 14 then
+                    local eb = getEnhIcon()
+                    eb:ClearAllPoints()
+                    eb:SetPoint("TOPLEFT", content, "TOPLEFT", ex, top - (ROW_H - 16) / 2)
+                    if enh.type == "item" then fillEnhItem(eb, enh.id) else fillEnhSpell(eb, enh.id) end
+                    ex = ex + 20
+                end
+            end
+
+            for i = 1, 6 do
+                local item_id = slot[i]
+                if item_id and item_id ~= -1 then
+                    if isHorde and Bistooltip_horde_to_ali and Bistooltip_horde_to_ali[item_id] then
+                        item_id = Bistooltip_horde_to_ali[item_id]
+                    end
+                    local owned = Bistooltip_char_equipment[item_id] ~= nil
+                    local btn = getItemButton()
+                    btn:ClearAllPoints()
+                    btn:SetPoint("TOPLEFT", content, "TOPLEFT", cellX(i), top - (ROW_H - ICON) / 2)
+                    fillItemButton(btn, item_id, owned)
+                end
+            end
+            row = row + 1
         end
     end
+    content:SetHeight(math.max(row * ROW_H, 1))
+    if scroll then scroll.updateThumb() end
 end
 
-local function drawTableHeader(frame)
-    local f = AceGUI:Create("Label")
-    f:SetText("Slot")
-    f:SetFont("Fonts\\FRIZQT__.TTF", 14, "")
-    local color = 0.6
-    f:SetColor(color, color, color)
-    frame:AddChild(f)
-    frame:AddChild(AceGUI:Create("Label"))
-    for i = 1, 6 do
-        f = AceGUI:Create("Label")
-        f:SetText("Top " .. i)
-        f:SetColor(color, color, color)
-        frame:AddChild(f)
+-- options -------------------------------------------------------------------
+
+local function classColorTbl(class_name)
+    local file = ({ Druid = "DRUID", Hunter = "HUNTER", Mage = "MAGE", Paladin = "PALADIN",
+        Priest = "PRIEST", Rogue = "ROGUE", Shaman = "SHAMAN", Warlock = "WARLOCK",
+        Warrior = "WARRIOR" })[class_name]
+    if file and GetClassColor then
+        local r, g, b = GetClassColor(file)
+        if r then return { r, g, b } end
     end
+    return C.textPrimary
 end
 
-local function saveData()
+local function classOptions()
+    local opts = {}
+    for ci, cl in ipairs(Bistooltip_classes) do
+        opts[#opts + 1] = {
+            text = cl.name, value = ci,
+            icon = Bistooltip_spec_icons[cl.name] and Bistooltip_spec_icons[cl.name].classIcon,
+            color = classColorTbl(cl.name),
+        }
+    end
+    return opts
+end
+
+local function specOptions(ci)
+    local opts = {}
+    local cl = Bistooltip_classes[ci]
+    if not cl then return opts end
+    for si, sp in ipairs(cl.specs) do
+        opts[#opts + 1] = {
+            text = sp, value = si,
+            icon = Bistooltip_spec_icons[cl.name] and Bistooltip_spec_icons[cl.name][sp],
+        }
+    end
+    return opts
+end
+
+local function phaseOptions()
+    local opts = {}
+    for pi, ph in ipairs(Bistooltip_phases or {}) do
+        opts[#opts + 1] = { text = ph, value = pi }
+    end
+    return opts
+end
+
+local function refreshHighlightBtn()
+    -- Highlight mode is configured in the settings panel; nothing to update here.
+end
+
+local function saveSelection()
     BistooltipAddon.db.char.class_index = class_index
     BistooltipAddon.db.char.spec_index = spec_index
     BistooltipAddon.db.char.phase_index = phase_index
 end
 
-local function saveWindowPosition()
-    if not main_frame then
-        return
-    end
-    local point, _, relativePoint, x, y = main_frame.frame:GetPoint()
-    local width = main_frame.frame:GetWidth()
-    local height = main_frame.frame:GetHeight()
+local function clampSelection()
+    if not Bistooltip_classes[class_index] then class_index = 1 end
+    local cl = Bistooltip_classes[class_index]
+    if not cl.specs[spec_index] then spec_index = 1 end
+    if not (Bistooltip_phases and Bistooltip_phases[phase_index]) then phase_index = 1 end
+end
+
+-- window --------------------------------------------------------------------
+
+local function saveWindow()
+    if not main_frame then return end
+    local point, _, rel, x, y = main_frame:GetPoint()
     BistooltipAddon.db.char.bis_list_window = {
-        point = point,
-        relativePoint = relativePoint,
-        x = x,
-        y = y,
-        width = width,
-        height = height
+        point = point, relativePoint = rel, x = x, y = y, height = main_frame:GetHeight(),
     }
 end
 
-local function loadWindowPosition()
-    if not main_frame or not BistooltipAddon.db.char.bis_list_window then
-        return
-    end
+local function buildWindow()
+    local f = CreateFrame("Frame", "BistooltipMainFrame", UIParent)
+    main_frame = f
+    f:SetSize(WIDTH, (BistooltipAddon.db.char.bis_list_window and BistooltipAddon.db.char.bis_list_window.height) or 560)
+    f:SetFrameStrata("HIGH")
+    f:SetToplevel(true)
+    f:EnableMouse(true)
+    f:SetMovable(true)
+    f:SetResizable(true)
+    if f.SetResizeBounds then f:SetResizeBounds(WIDTH, 320, WIDTH, 1400) end
+    W.bg(f, C.window)
+    W.border(f, C.border)
+
+    tinsert(UISpecialFrames, "BistooltipMainFrame")
+
     local pos = BistooltipAddon.db.char.bis_list_window
-    main_frame:ClearAllPoints()
-    main_frame:SetPoint(pos.point, UIParent, pos.relativePoint, pos.x, pos.y)
-    if pos.width and pos.height then
-        main_frame:SetWidth(pos.width)
-        main_frame:SetHeight(pos.height)
-        main_frame.frame:SetResizeBounds(450, 300, UIParent:GetWidth(), UIParent:GetHeight())
+    if pos and pos.point then
+        f:SetPoint(pos.point, UIParent, pos.relativePoint or pos.point, pos.x or 0, pos.y or 0)
+    else
+        f:SetPoint("CENTER")
     end
-end
 
-local function clearCheckMarks()
-    for key, value in ipairs(checkmarks) do
-        value:SetTexture(nil)
+    -- header
+    local header = W.panel(f, C.header)
+    header:SetPoint("TOPLEFT"); header:SetPoint("TOPRIGHT"); header:SetHeight(40)
+    header:EnableMouse(true)
+    header:SetScript("OnMouseDown", function() f:StartMoving() end)
+    header:SetScript("OnMouseUp", function() f:StopMovingOrSizing(); saveWindow() end)
+    local hbot = header:CreateTexture(nil, "BORDER")
+    hbot:SetColorTexture(C.border[1], C.border[2], C.border[3], 1)
+    hbot:SetPoint("BOTTOMLEFT"); hbot:SetPoint("BOTTOMRIGHT"); hbot:SetHeight(1)
+
+    local icon = header:CreateTexture(nil, "ARTWORK")
+    icon:SetSize(22, 22); icon:SetPoint("LEFT", 12, 0)
+    icon:SetTexture("interface/icons/inv_weapon_glave_01.blp")
+    local title = W.text(header, 14, C.textPrimary)
+    title:SetPoint("LEFT", icon, "RIGHT", 8, 0)
+    title:SetText("BiS-Tooltip")
+    local ver = W.text(header, 12, C.textMuted)
+    ver:SetPoint("LEFT", title, "RIGHT", 6, 0)
+    ver:SetText("v9.17")
+
+    local close = W.iconButton(header, 26)
+    close:SetPoint("RIGHT", -8, 0)
+    close.tex = close:CreateTexture(nil, "ARTWORK")
+    close.tex:SetSize(13, 13); close.tex:SetPoint("CENTER")
+    close.tex:SetTexture("Interface\\AddOns\\Bistooltip\\icons\\close.tga")
+    close.tex:SetVertexColor(0.62, 0.62, 0.67, 1)
+    close:HookScript("OnEnter", function() close.tex:SetVertexColor(0.88, 0.34, 0.34, 1) end)
+    close:HookScript("OnLeave", function() close.tex:SetVertexColor(0.62, 0.62, 0.67, 1) end)
+    close:SetScript("OnClick", function() BistooltipAddon:closeMainFrame() end)
+
+    local gear = W.iconButton(header, 26)
+    gear:SetPoint("RIGHT", close, "LEFT", -2, 0)
+    gear.tex = gear:CreateTexture(nil, "ARTWORK")
+    gear.tex:SetSize(16, 16); gear.tex:SetPoint("CENTER")
+    gear.tex:SetTexture("Interface\\AddOns\\Bistooltip\\icons\\gear.tga")
+    gear.tex:SetVertexColor(0.70, 0.70, 0.74, 1)
+    gear:HookScript("OnEnter", function() gear.tex:SetVertexColor(0.92, 0.92, 0.95, 1) end)
+    gear:HookScript("OnLeave", function() gear.tex:SetVertexColor(0.70, 0.70, 0.74, 1) end)
+    gear:SetScript("OnClick", function() BistooltipAddon:openSettings() end)
+
+    -- source toggle
+    local srcWrap = CreateFrame("Frame", nil, header)
+    srcWrap:SetSize(150, 24)
+    srcWrap:SetPoint("RIGHT", gear, "LEFT", -8, 0)
+    local function srcButton(key, anchorRight)
+        local b = CreateFrame("Button", nil, srcWrap)
+        b:SetSize(74, 24)
+        W.bg(b, C.panel); W.border(b, C.border)
+        b.label = W.text(b, 12, C.textSecond); b.label:SetPoint("CENTER")
+        b.label:SetText(Bistooltip_source_to_name[key] or key)
+        b.key = key
+        b:SetScript("OnClick", function()
+            if BistooltipAddon.db.char.data_source ~= key then
+                BistooltipAddon:changeDataSource(key)
+            end
+        end)
+        return b
     end
-    checkmarks = {}
-end
-
-local function clearBoeMarks()
-    for key, value in ipairs(boemarks) do
-        value:SetTexture(nil)
+    local srcWh = srcButton("wh"); srcWh:SetPoint("LEFT")
+    local srcTbc = srcButton("wowtbc"); srcTbc:SetPoint("LEFT", srcWh, "RIGHT", 2, 0)
+    f.srcButtons = { srcWh, srcTbc }
+    f.refreshSource = function()
+        for _, b in ipairs(f.srcButtons) do
+            local active = BistooltipAddon.db.char.data_source == b.key
+            if active then
+                b.bgTex:SetColorTexture(C.accent[1], C.accent[2], C.accent[3], 1)
+                b.label:SetTextColor(0.14, 0.11, 0.05, 1)
+            else
+                b.bgTex:SetColorTexture(C.panel[1], C.panel[2], C.panel[3], 1)
+                b.label:SetTextColor(C.textSecond[1], C.textSecond[2], C.textSecond[3], 1)
+            end
+        end
     end
-    boemarks = {}
-end
 
-local function drawSpecData()
-    clearCheckMarks()
-    clearBoeMarks()
-    saveData()
-    items = {}
-    spells = {}
-    spec_frame:ReleaseChildren()
-    drawTableHeader(spec_frame)
-    if not spec or not phase then
-        return
-    end
-    local slots = Bistooltip_bislists[class][spec][phase]
-    for i, slot in ipairs(slots) do
-        drawItemSlot(slot)
-    end
-end
+    -- toolbar
+    local toolbar = CreateFrame("Frame", nil, f)
+    toolbar:SetPoint("TOPLEFT", header, "BOTTOMLEFT", 0, 0)
+    toolbar:SetPoint("TOPRIGHT", header, "BOTTOMRIGHT", 0, 0)
+    toolbar:SetHeight(46)
 
-local function buildClassDict()
-    class_options = {}
-    for ci, class in ipairs(Bistooltip_classes) do
-        local option_name = "|T" .. Bistooltip_spec_icons[class.name].classIcon .. ":14|t " .. class.name
-        table.insert(class_options, option_name)
-        class_options_to_class[option_name] = { name = class.name, i = ci }
-    end
-end
+    classDD = W.dropdown(toolbar, 120); classDD:SetPoint("LEFT", 12, 0)
+    specDD = W.dropdown(toolbar, 150); specDD:SetPoint("LEFT", classDD, "RIGHT", 8, 0)
+    phaseDD = W.dropdown(toolbar, 130); phaseDD:SetPoint("LEFT", specDD, "RIGHT", 8, 0)
 
-local function buildSpecsDict(class_i)
-    spec_options = {}
-    spec_options_to_spec = {}
-    for si, spec in ipairs(Bistooltip_classes[class_i].specs) do
-        local option_name = "|T" .. Bistooltip_spec_icons[class][spec] .. ":14|t " .. spec
-        table.insert(spec_options, option_name)
-        spec_options_to_spec[option_name] = spec
-    end
-end
-
-local function loadData()
-    class_index = BistooltipAddon.db.char.class_index
-    spec_index = BistooltipAddon.db.char.spec_index
-    phase_index = BistooltipAddon.db.char.phase_index
-    if class_index then
-        class = class_options_to_class[class_options[class_index]].name
-        buildSpecsDict(class_index)
-    end
-    if spec_index then
-        spec = spec_options_to_spec[spec_options[spec_index]]
-    end
-    if phase_index then
-        phase = Bistooltip_phases[phase_index]
-    end
-end
-
-local function drawDropdowns()
-    local dropDownGroup = AceGUI:Create("SimpleGroup")
-
-    dropDownGroup:SetLayout("Table")
-    dropDownGroup:SetUserData("table", {
-        columns = {
-            110, 180, 70 },
-        space = 1,
-        align = "BOTTOMRIGHT"
-    })
-    main_frame:AddChild(dropDownGroup)
-
-    classDropdown = AceGUI:Create("Dropdown")
-    specDropdown = AceGUI:Create("Dropdown")
-    phaseDropDown = AceGUI:Create("Dropdown")
-    specDropdown:SetDisabled(true)
-
-    phaseDropDown:SetCallback("OnValueChanged", function(_, _, key)
-        phase_index = key
-        phase = Bistooltip_phases[key]
-        drawSpecData()
+    classDD:SetOnChange(function(ci)
+        class_index = ci; spec_index = 1
+        specDD:SetOptions(specOptions(ci)); specDD:SetValue(1); specDD:SetDisabled(false)
+        saveSelection(); drawSpecData()
     end)
+    specDD:SetOnChange(function(si) spec_index = si; saveSelection(); drawSpecData() end)
+    phaseDD:SetOnChange(function(pi) phase_index = pi; saveSelection(); drawSpecData() end)
 
-    specDropdown:SetCallback("OnValueChanged", function(_, _, key)
-        spec_index = key
-        spec = spec_options_to_spec[spec_options[key]]
-        drawSpecData()
-    end)
-
-    classDropdown:SetCallback("OnValueChanged", function(_, _, key)
-        class_index = key
-        class = class_options_to_class[class_options[key]].name
-
-        specDropdown:SetDisabled(false)
-        buildSpecsDict(key)
-        specDropdown:SetList(spec_options)
-        specDropdown:SetValue(1)
-        spec_index = 1
-        spec = spec_options_to_spec[spec_options[1]]
-        drawSpecData()
-    end)
-
-    classDropdown:SetList(class_options)
-    phaseDropDown:SetList(Bistooltip_phases)
-
-    dropDownGroup:AddChild(classDropdown)
-    dropDownGroup:AddChild(specDropdown)
-    dropDownGroup:AddChild(phaseDropDown)
-
-    local fillerFrame = AceGUI:Create("Label")
-    fillerFrame:SetText(" ")
-    main_frame:AddChild(fillerFrame)
-
-    classDropdown:SetValue(class_index)
-    if (class_index) then
-        buildSpecsDict(class_index)
-        specDropdown:SetList(spec_options)
-        specDropdown:SetDisabled(false)
+    -- grid header
+    local gh = CreateFrame("Frame", nil, f)
+    gh:SetPoint("TOPLEFT", toolbar, "BOTTOMLEFT", 0, 0)
+    gh:SetPoint("TOPRIGHT", toolbar, "BOTTOMRIGHT", 0, 0)
+    gh:SetHeight(22)
+    local function ghLabel(txt, x, justify)
+        local fs = W.text(gh, 11, C.textMuted); fs:SetText(txt)
+        fs:SetPoint("LEFT", gh, "LEFT", x, 0)
+        if justify then fs:SetJustifyH(justify) end
+        return fs
     end
-    specDropdown:SetValue(spec_index)
-    phaseDropDown:SetValue(phase_index)
-end
+    ghLabel("Slot", PAD)
+    ghLabel("Enh", ENH_X)
+    for i = 1, 6 do ghLabel(i == 1 and "Top 1" or tostring(i), cellX(i)) end
+    local ghbot = gh:CreateTexture(nil, "BORDER")
+    ghbot:SetColorTexture(C.border[1], C.border[2], C.border[3], 0.6)
+    ghbot:SetPoint("BOTTOMLEFT"); ghbot:SetPoint("BOTTOMRIGHT"); ghbot:SetHeight(1)
 
-local function createSpecFrame()
-    local frame = AceGUI:Create("ScrollFrame")
-    frame:SetLayout("Table")
-    frame:SetUserData("table", {
-        columns = {
-            { weight = 40 },
-            { width = 44 },
-            { width = 44 },
-            { width = 44 },
-            { width = 44 },
-            { width = 44 },
-            { width = 44 },
-            { width = 44 } },
-        space = 1,
-        align = "middle"
-    })
-    frame:SetFullWidth(true)
-    frame:SetHeight(0)
-    frame:SetAutoAdjustHeight(false)
-    main_frame:AddChild(frame)
-    spec_frame = frame
+    -- footer
+    local footer = CreateFrame("Frame", nil, f)
+    footer:SetPoint("BOTTOMLEFT"); footer:SetPoint("BOTTOMRIGHT"); footer:SetHeight(26)
+    local ftop = footer:CreateTexture(nil, "BORDER")
+    ftop:SetColorTexture(C.border[1], C.border[2], C.border[3], 1)
+    ftop:SetPoint("TOPLEFT"); ftop:SetPoint("TOPRIGHT"); ftop:SetHeight(1)
+    statusText = W.text(footer, 11, C.textMuted)
+    statusText:SetPoint("LEFT", 12, 0)
+
+    -- Pin the frame to its current top-left corner so vertical sizing keeps the
+    -- top edge fixed (a CENTER-anchored frame would resize from the middle).
+    local function anchorTopLeft()
+        local l, t = f:GetLeft(), f:GetTop()
+        if not l or not t then return end
+        f:ClearAllPoints()
+        f:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", l, t)
+    end
+
+    local grip = CreateFrame("Button", nil, footer)
+    grip:SetSize(16, 16); grip:SetPoint("RIGHT", -6, 0)
+    local gripTex = grip:CreateTexture(nil, "ARTWORK")
+    gripTex:SetSize(12, 12); gripTex:SetPoint("CENTER")
+    gripTex:SetTexture("Interface\\AddOns\\Bistooltip\\icons\\grip.tga")
+    gripTex:SetVertexColor(C.textMuted[1], C.textMuted[2], C.textMuted[3], 1)
+    grip:SetScript("OnEnter", function() gripTex:SetVertexColor(0.70, 0.70, 0.74, 1) end)
+    grip:SetScript("OnLeave", function() gripTex:SetVertexColor(C.textMuted[1], C.textMuted[2], C.textMuted[3], 1) end)
+    grip:SetScript("OnMouseDown", function() anchorTopLeft(); f:StartSizing("BOTTOM") end)
+    grip:SetScript("OnMouseUp", function() f:StopMovingOrSizing(); saveWindow(); if scroll then scroll.updateThumb() end end)
+
+    -- scroll
+    scroll = W.scroll(f)
+    scroll:SetPoint("TOPLEFT", gh, "BOTTOMLEFT", 0, -2)
+    scroll:SetPoint("BOTTOMRIGHT", footer, "TOPRIGHT", -4, 2)
+    content = scroll.content
+    content:SetWidth(WIDTH - 6)
+
+    f:SetScript("OnSizeChanged", function() if scroll then scroll.updateThumb() end end)
 end
 
 function BistooltipAddon:reloadData()
-    buildClassDict()
-    class_index = BistooltipAddon.db.char.class_index
-    spec_index = BistooltipAddon.db.char.spec_index
-    phase_index = BistooltipAddon.db.char.phase_index
-
-    class = class_options_to_class[class_options[class_index]].name
-    buildSpecsDict(class_index)
-    spec = spec_options_to_spec[spec_options[spec_index]]
-    phase = Bistooltip_phases[phase_index]
-
+    if not Bistooltip_classes then return end
+    class_index = BistooltipAddon.db.char.class_index or 1
+    spec_index = BistooltipAddon.db.char.spec_index or 1
+    phase_index = BistooltipAddon.db.char.phase_index or 1
+    clampSelection()
     if main_frame then
-        phaseDropDown:SetList(Bistooltip_phases)
-        classDropdown:SetList(class_options)
-        specDropdown:SetList(spec_options)
-
-        classDropdown:SetValue(class_index)
-        specDropdown:SetValue(spec_index)
-        phaseDropDown:SetValue(phase_index)
-
+        classDD:SetOptions(classOptions()); classDD:SetValue(class_index)
+        specDD:SetOptions(specOptions(class_index)); specDD:SetValue(spec_index); specDD:SetDisabled(false)
+        phaseDD:SetOptions(phaseOptions()); phaseDD:SetValue(phase_index)
+        refreshHighlightBtn()
+        if main_frame.refreshSource then main_frame.refreshSource() end
+        if statusText then statusText:SetText(Bistooltip_source_to_url[BistooltipAddon.db.char.data_source] or "") end
         drawSpecData()
-        main_frame:SetStatusText(Bistooltip_source_to_url[BistooltipAddon.db.char["data_source"]])
     end
 end
 
 function BistooltipAddon:createMainFrame()
-    if main_frame then
-        BistooltipAddon:closeMainFrame()
+    if not main_frame then
+        buildWindow()
+        BistooltipAddon:reloadData()
+        main_frame:Show()
         return
     end
-    main_frame = AceGUI:Create("Frame")
-    if BistooltipAddon.db.char.bis_list_window and
-            BistooltipAddon.db.char.bis_list_window.width and
-            BistooltipAddon.db.char.bis_list_window.height then
-        main_frame:SetWidth(BistooltipAddon.db.char.bis_list_window.width)
-        main_frame:SetHeight(BistooltipAddon.db.char.bis_list_window.height)
+    if main_frame:IsShown() then
+        BistooltipAddon:closeMainFrame()
     else
-        main_frame:SetWidth(450)
-        main_frame:SetHeight(500)
+        BistooltipAddon:reloadData()
+        main_frame:Show()
     end
-
-    main_frame.frame:SetResizeBounds(450, 300)
-
-    _G[bisListFrameName] = main_frame.frame
-    tinsert(UISpecialFrames, bisListFrameName)
-
-    main_frame:SetCallback("OnClose", function(widget)
-        saveWindowPosition()
-        clearCheckMarks()
-        clearBoeMarks()
-        spec_frame = nil
-        items = {}
-        spells = {}
-        AceGUI:Release(widget)
-        main_frame = nil
-        if data_source_dropdown then
-            AceGUI:Release(data_source_dropdown)
-            data_source_dropdown = nil
-        end
-    end)
-
-    main_frame.frame:SetScript("OnMouseUp", function(self)
-        if self:IsMovable() then
-            self:StopMovingOrSizing()
-            saveWindowPosition()
-        end
-    end)
-    main_frame:SetLayout("List")
-    main_frame:SetTitle(BistooltipAddon.AddonNameAndVersion)
-
-    main_frame:SetStatusText("")
-    if main_frame.statustext then
-        main_frame.statustext:Hide()
-    end
-
-    data_source_dropdown = AceGUI:Create("Dropdown")
-    data_source_dropdown:SetList(Bistooltip_source_to_url)
-    data_source_dropdown:SetValue(BistooltipAddon.db.char.data_source)
-    data_source_dropdown:SetWidth(150)
-
-    local status_bar_bg = select(2, main_frame.frame:GetChildren())
-    if status_bar_bg then
-        status_bar_bg:Hide()
-    end
-
-    local dropdown_frame = data_source_dropdown.frame
-    dropdown_frame:SetParent(main_frame.frame)
-    dropdown_frame:ClearAllPoints()
-    dropdown_frame:SetPoint("BOTTOMLEFT", 15, 15)
-    dropdown_frame:SetPoint("BOTTOMRIGHT", -132, 15)
-    --dropdown_frame:SetFrameLevel(main_frame.frame:GetFrameLevel() + 10)
-    dropdown_frame:Show()
-
-    data_source_dropdown:SetCallback("OnValueChanged", function(_, _, key)
-        BistooltipAddon.db.char.data_source = key
-        BistooltipAddon:changeDataSource(key)
-    end)
-
-    if BistooltipAddon.db.char.bis_list_window then
-        loadWindowPosition()
-    else
-        main_frame:SetPoint("CENTER", UIParent, "CENTER")
-    end
-
-    drawDropdowns()
-    createSpecFrame()
-    drawSpecData()
 end
 
 function BistooltipAddon:closeMainFrame()
+    W.closeDropdown()
+    if BistooltipAddon.closeSettings then BistooltipAddon:closeSettings() end
     if main_frame then
-        AceGUI:Release(main_frame)
-        classDropdown = nil
-        specDropdown = nil
-        phaseDropDown = nil
-        return
+        saveWindow()
+        main_frame:Hide()
     end
 end
 
+function BistooltipAddon:getMainFrame() return main_frame end
+
+function BistooltipAddon:setHighlightMode(mode)
+    BistooltipAddon.db.char.highlight_mode = mode
+    refreshHighlightBtn()
+end
+
 function BistooltipAddon:initBislists()
-    buildClassDict()
-    loadData()
-    LibStub("AceConsole-3.0"):RegisterChatCommand("bistooltip", function()
-        BistooltipAddon:createMainFrame()
-    end, persist)
+    C = BistooltipAddon.Colors
+    class_index = BistooltipAddon.db.char.class_index or 1
+    spec_index = BistooltipAddon.db.char.spec_index or 1
+    phase_index = BistooltipAddon.db.char.phase_index or 1
+    if not SlashCmdList["BISTOOLTIP"] then
+        SLASH_BISTOOLTIP1 = "/bistooltip"
+        SlashCmdList["BISTOOLTIP"] = function() BistooltipAddon:createMainFrame() end
+    end
 end

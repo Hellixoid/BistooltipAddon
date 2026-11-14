@@ -1,119 +1,89 @@
-local LibExtraTip = LibStub:GetLibrary("LibExtraTip-1");
-local eventFrame = CreateFrame("Frame", nil, UIParent)
-Bistooltip_phases_string = ""
+-- Item tooltip enrichment. BiS data is shown in a separate box attached to the
+-- bottom of the item tooltip (like the old LibExtraTip "extra tip"), driven by
+-- the client's native tooltip system (TooltipDataProcessor on the 11.x-era
+-- engine, e.g. WoW Forever 5.5.4) with a legacy OnTooltipSetItem fallback.
+-- No external tooltip library.
 
-local function specHighlighted(class_name, spec_name)
-    return (BistooltipAddon.db.char.highlight_spec.spec_name == spec_name
-            and BistooltipAddon.db.char.highlight_spec.class_name == class_name)
+local extraTip                      -- our attached tooltip frame (created lazily)
+local anchorHost                    -- the tooltip we're currently attached to
+
+local CLASS_FILE = {
+    ["Druid"] = "DRUID", ["Hunter"] = "HUNTER", ["Mage"] = "MAGE",
+    ["Paladin"] = "PALADIN", ["Priest"] = "PRIEST", ["Rogue"] = "ROGUE",
+    ["Shaman"] = "SHAMAN", ["Warlock"] = "WARLOCK", ["Warrior"] = "WARRIOR",
+    ["Death knight"] = "DEATHKNIGHT", ["Monk"] = "MONK",
+}
+
+local function classColor(class_name)
+    local file = CLASS_FILE[class_name]
+    if file and GetClassColor then
+        local r, g, b = GetClassColor(file)
+        if r then return r, g, b end
+    end
+    return 1, 0.8, 0
 end
 
-local function specFiltered(class_name, spec_name)
-    if specHighlighted(class_name, spec_name) then
-        return false
-    end
-    if IsAltKeyDown() then
-        return false
-    end
-    if BistooltipAddon.db.char.filter_specs[class_name] then
-        return not BistooltipAddon.db.char.filter_specs[class_name][spec_name]
+local function isHighlighted(class_name, spec_name)
+    local mode = BistooltipAddon.db.char.highlight_mode
+    if mode == "class" then
+        return class_name == BistooltipAddon.playerClassName
+    elseif mode == "spec" then
+        return class_name == BistooltipAddon.playerClassName
+            and BistooltipAddon.playerSpecs and BistooltipAddon.playerSpecs[spec_name] == true
     end
     return false
 end
 
 local function classNamesFiltered()
-    if BistooltipAddon.db.char.filter_class_names then
-        return true
-    end
-end
-
-local function getFilteredItem(item)
-    local filtered_item = {}
-
-    for ki, spec in ipairs(item) do
-        local class_name = spec.class_name
-        local spec_name = spec.spec_name
-        if (not specFiltered(class_name, spec_name)) then
-            table.insert(filtered_item, spec)
-        end
-    end
-    return filtered_item
+    return BistooltipAddon.db.char.filter_class_names == true
 end
 
 local function printSpecLine(tooltip, slot, class_name, spec_name)
     local slot_name = slot.name
     local suffix = slot.suffix
     local slot_ranks = slot.ranks
-    local prefix = "   "
-    if BistooltipAddon.db.char.filter_class_names then
-        prefix = ""
-    end
-    local left_text = prefix .. "|T" .. Bistooltip_spec_icons[class_name][spec_name] .. ":14|t " .. spec_name
-    if (slot_name == "Off hand" or slot_name == "Weapon" or slot_name == "Weapon 1h" or slot_name == "Weapon 2h") then
+    local prefix = classNamesFiltered() and "" or "   "
+
+    local icon = Bistooltip_spec_icons[class_name] and Bistooltip_spec_icons[class_name][spec_name]
+    local left_text = prefix
+    if icon then left_text = left_text .. "|T" .. icon .. ":14|t " end
+    left_text = left_text .. spec_name
+    if slot_name == "Off hand" or slot_name == "Weapon" or slot_name == "Weapon 1H" or slot_name == "Weapon 2H" then
         left_text = left_text .. " (" .. slot_name .. ")"
     end
-
-    local color_r = 1
-    local color_g = 0.8
-    local color_b = 0
-
-    if specHighlighted(class_name, spec_name) then
-        color_r = 0.074
-        color_g = 0.964
-        color_b = 0.129
-    else
-            if class_name == "Death knight" then
-            color_r,color_g,color_b = GetClassColor("DEATHKNIGHT")
-        else
-            color_r,color_g,color_b = GetClassColor(string.upper(class_name))
-        end
-    end
-
-    if (suffix ~= "") then
+    if suffix and suffix ~= "" then
         left_text = left_text .. " " .. suffix
     end
-    LibExtraTip:AddDoubleLine(
-            tooltip, left_text, slot_ranks,
-            color_r, color_g, color_b,
-            color_r, color_g, color_b,
-            false)
+
+    local r, g, b
+    if isHighlighted(class_name, spec_name) then
+        r, g, b = 0.074, 0.964, 0.129
+    else
+        r, g, b = classColor(class_name)
+    end
+
+    tooltip:AddDoubleLine(left_text, slot_ranks or "", r, g, b, r, g, b)
 end
 
 local function printClassName(tooltip, class_name)
-    LibExtraTip:AddLine(tooltip, class_name, 1, 0.8, 0, false)
+    tooltip:AddLine(class_name, 1, 0.8, 0)
 end
 
-local function OnGameTooltipSetItem(tooltip)
-    if BistooltipAddon.db.char.tooltip_with_ctrl and not IsControlKeyDown() then
-        return
-    end
-    local _, link = tooltip:GetItem();
-
-    if link == nil then
-        return ;
-    end
-
-    local _, itemId, _, _, _, _, _, _, _, _, _, _, _, _ = strsplit(":", link)
-
-    itemId = tonumber(itemId);
-    if Bistooltip_items[itemId] == nil then
-        return ;
-    end
+-- Fill `tooltip` with the BiS lines for itemId. Returns true if anything added.
+local function populate(tooltip, itemId)
+    if not itemId or Bistooltip_items == nil or Bistooltip_items[itemId] == nil then return false end
     local item = Bistooltip_items[itemId]
-    local specs_count = #item
-    item = getFilteredItem(item)
-    if (#item > 0) then
-        LibExtraTip:AddDoubleLine(tooltip, "Spec name", Bistooltip_phases_string, 1, 1, 0, 1, 1, 0, false)
-    else
-        return
-    end
+    if #item == 0 then return false end
+
+    tooltip:AddDoubleLine("Spec name", Bistooltip_phases_string or "", 1, 1, 0, 1, 1, 0)
+
     local previous_class = nil
-    for ki, spec in ipairs(item) do
+    for _, spec in ipairs(item) do
         local class_name = spec.class_name
         local spec_name = spec.spec_name
-        local slots = spec.slots
-        for ks, slot in ipairs(slots) do
-            if (not classNamesFiltered()) then
-                if not (previous_class == class_name) then
+        for _, slot in ipairs(spec.slots) do
+            if not classNamesFiltered() then
+                if previous_class ~= class_name then
                     printClassName(tooltip, class_name)
                     previous_class = class_name
                 end
@@ -121,40 +91,129 @@ local function OnGameTooltipSetItem(tooltip)
             printSpecLine(tooltip, slot, class_name, spec_name)
         end
     end
-    if #item > 0 and Bistooltip_char_equipment[itemId] ~= nil then
-        LibExtraTip:AddLine(tooltip, " ", 1, 1, 0, false)
+
+    if Bistooltip_char_equipment and Bistooltip_char_equipment[itemId] ~= nil then
+        tooltip:AddLine(" ", 1, 1, 0)
         if Bistooltip_char_equipment[itemId] == 2 then
-            LibExtraTip:AddLine(tooltip, "You have this item equipped", 0.074, 0.964, 0.129, false)
+            tooltip:AddLine("You have this item equipped", 0.074, 0.964, 0.129)
         else
-            LibExtraTip:AddLine(tooltip, "You have this item in your inventory", 0.074, 0.964, 0.129, false)
+            tooltip:AddLine("You have this item in your inventory", 0.074, 0.964, 0.129)
         end
     end
-    if not (#item == specs_count) then
-        if (#item > 0) then
-            LibExtraTip:AddLine(tooltip, " ", 1, 1, 0, false)
+    return true
+end
+
+local function ensureExtraTip()
+    if extraTip then return extraTip end
+    extraTip = CreateFrame("GameTooltip", "BistooltipExtraTip", UIParent, "GameTooltipTemplate")
+    extraTip:SetClampedToScreen(true)
+    return extraTip
+end
+
+local function hideExtra()
+    if extraTip then extraTip:Hide() end
+    anchorHost = nil
+end
+
+-- Show the attached BiS box under `host` (the item tooltip that fired).
+local function showExtra(host, itemId)
+    hideExtra()
+    if BistooltipAddon.db.char.tooltip_with_ctrl and not IsControlKeyDown() then return end
+
+    -- Bail early if there's nothing to show, so we never flash an empty box.
+    if not itemId or Bistooltip_items == nil or Bistooltip_items[itemId] == nil
+        or #Bistooltip_items[itemId] == 0 then
+        return
+    end
+
+    local et = ensureExtraTip()
+    et:SetParent(UIParent)
+    et:SetScale(host:GetScale() or 1)
+    et:SetFrameStrata(host:GetFrameStrata())
+    et:SetFrameLevel(host:GetFrameLevel() + 1)
+    anchorHost = host
+
+    -- Lay out the box at a given minimum content width. SetMinimumWidth only
+    -- takes effect through a fresh layout pass (ClearLines -> AddLine -> Show);
+    -- calling Show() on an already-shown tooltip is a no-op.
+    local function buildAt(minW)
+        et:SetOwner(UIParent, "ANCHOR_NONE")
+        et:ClearLines()
+        if minW and minW > 0 then et:SetMinimumWidth(minW) end
+        populate(et, itemId)
+        et:ClearAllPoints()
+        et:SetPoint("TOPLEFT", host, "BOTTOMLEFT", 0, -3)
+        et:Show()
+    end
+
+    -- Match the box's final rendered width to the host's. GetWidth() includes
+    -- each tooltip's own border padding, so feeding host:GetWidth() straight
+    -- into SetMinimumWidth overshoots by one padding's worth. Measure the
+    -- overshoot and shrink the minimum until the two widths line up (a few
+    -- iterations; stops early once equal or once content sets the floor).
+    local function layout()
+        if not extraTip or anchorHost ~= host or not host:IsShown() then return end
+        local hostW = host:GetWidth()
+        if not hostW or hostW <= 0 then return end
+        local minW, prevW = hostW, nil
+        for _ = 1, 5 do
+            buildAt(minW)
+            local w = et:GetWidth() or hostW
+            local over = w - hostW
+            if over <= 0.5 then break end
+            if prevW and math.abs(w - prevW) < 0.5 then break end
+            prevW = w
+            minW = minW - over
+            if minW <= 0 then break end
         end
-        LibExtraTip:AddLine(tooltip, "Hold ALT to disable spec filtering", 0.6, 0.6, 0.6, false)
+    end
+
+    layout()
+    -- Re-run on later frames in case the host tooltip changes size after our
+    -- post-call (other addons appending lines, async item info loading).
+    if C_Timer and C_Timer.After then
+        C_Timer.After(0, layout)
+        C_Timer.After(0.1, layout)
     end
 end
 
-function BistooltipAddon:initBisTooltip()
-    LibExtraTip:AddCallback({ type = "item", callback = OnGameTooltipSetItem, allevents = true })
-    LibExtraTip:RegisterTooltip(GameTooltip);
-    LibExtraTip:RegisterTooltip(ItemRefTooltip);
-    eventFrame:RegisterEvent("MODIFIER_STATE_CHANGED");
-    eventFrame:SetScript("OnEvent", function(_, _, e_key, _, _)
-        if (GameTooltip:GetOwner()) then
-            if (GameTooltip:GetOwner().hasItem) then
-                return
-            end
+-- Resolve the item id a tooltip is currently displaying, across API variants.
+local function tooltipItemId(tooltip, data)
+    if data and data.id then return data.id end
+    if TooltipUtil and TooltipUtil.GetDisplayedItem then
+        local _, link = TooltipUtil.GetDisplayedItem(tooltip)
+        if link then return tonumber(link:match("item:(%d+)")) end
+    end
+    if tooltip.GetItem then
+        local _, link = tooltip:GetItem()
+        if link then return tonumber(link:match("item:(%d+)")) end
+    end
+    return nil
+end
 
-            if (e_key == "RALT" or e_key == "LALT") then
-                local _, link = GameTooltip:GetItem()
-                if link then
-                    GameTooltip:SetHyperlink("|cff9d9d9d|Hitem:3299::::::::20:257::::::|h[Fractured Canine]|h|r")
-                    GameTooltip:SetHyperlink(link)
-                end
-            end
+local function hookHost(host)
+    if not host or host.bistooltipHooked then return end
+    host.bistooltipHooked = true
+    host:HookScript("OnHide", function(self) if anchorHost == self then hideExtra() end end)
+end
+
+function BistooltipAddon:initBisTooltip()
+    hookHost(GameTooltip)
+    hookHost(ItemRefTooltip)
+
+    if TooltipDataProcessor and TooltipDataProcessor.AddTooltipPostCall
+        and Enum and Enum.TooltipDataType and Enum.TooltipDataType.Item then
+        -- Modern engine: one post-call fires for every item tooltip.
+        TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Item, function(tooltip, data)
+            if tooltip ~= GameTooltip and tooltip ~= ItemRefTooltip then return end
+            showExtra(tooltip, tooltipItemId(tooltip, data))
+        end)
+    else
+        -- Legacy fallback: hook the item tooltip script directly.
+        local function hook(tt)
+            showExtra(tt, tooltipItemId(tt, nil))
         end
-    end)
+        GameTooltip:HookScript("OnTooltipSetItem", hook)
+        if ItemRefTooltip then ItemRefTooltip:HookScript("OnTooltipSetItem", hook) end
+    end
 end

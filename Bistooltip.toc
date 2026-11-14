@@ -1,4 +1,4 @@
-## Interface: 50504
+## Interface: 16001
 ## Title: BiS-Tooltip
 ## Notes: v9.17. In game BiS lists and item tooltip enrichment.
 ## Author: Hellixoid
@@ -18,25 +18,26 @@
 ## Category-zhCN: 装备
 ## Category-zhTW: 裝備
 
-# Libs.
+# Libs (no Ace3, no LibExtraTip; tooltips use the native tooltip API).
 lib\LibStub\LibStub.lua
-lib\LibExtraTip\Load.xml
 lib\CallbackHandler-1.0\CallbackHandler-1.0.lua
 lib\LibDataBroker-1.1\LibDataBroker-1.1.lua
 lib\LibDBIcon-1.0\LibDBIcon-1.0.lua
-lib\Ace3\AceGUI-3.0\AceGUI-3.0.xml
-lib\Ace3\AceDB-3.0\AceDB-3.0.lua
-lib\Ace3\AceConsole-3.0\AceConsole-3.0.xml
-lib\Ace3\AceAddon-3.0\AceAddon-3.0.xml
-lib\Ace3\AceConfig-3.0\AceConfig-3.0.xml
 
+# Data.
 Bistooltip_classes.lua
 Bistooltip_wowtbc_items.lua
 Bistooltip_wowtbc_bislists.lua
 Bistooltip_wh_items.lua
 Bistooltip_wh_bislists.lua
 Bistooltip_horde_to_ali.lua
+
+# Addon.
+Widgets.lua
+Db.lua
 Core.lua
 Config.lua
-Bistooltip.lua
+Spec.lua
 Bislist.lua
+Settings.lua
+Bistooltip.lua
