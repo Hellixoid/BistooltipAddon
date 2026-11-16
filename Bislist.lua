@@ -159,13 +159,32 @@ local function fillEnhItem(b, item_id)
     end)
 end
 
+-- GetSpellInfo / GetSpellLink were removed from the global namespace on the
+-- modern engine (WoW Forever 5.5.4); the data now lives under C_Spell. Fall
+-- back to the old globals for older clients.
+local function spellIcon(spell_id)
+    if C_Spell and C_Spell.GetSpellTexture then return C_Spell.GetSpellTexture(spell_id) end
+    if C_Spell and C_Spell.GetSpellInfo then
+        local info = C_Spell.GetSpellInfo(spell_id)
+        return info and (info.iconID or info.iconFileID)
+    end
+    if GetSpellInfo then return select(3, GetSpellInfo(spell_id)) end
+    return nil
+end
+
+local function spellLink(spell_id)
+    if C_Spell and C_Spell.GetSpellLink then return C_Spell.GetSpellLink(spell_id) end
+    if GetSpellLink then return GetSpellLink(spell_id) end
+    return nil
+end
+
 local function fillEnhSpell(b, spell_id)
     local sp = Spell:CreateFromSpellID(spell_id)
     if not sp:GetSpellID() then return end
     sp:ContinueOnSpellLoad(function()
         if not b:IsShown() then return end
-        b.tex:SetTexture(select(3, GetSpellInfo(spell_id)))
-        local link = GetSpellLink(spell_id)
+        b.tex:SetTexture(spellIcon(spell_id))
+        local link = spellLink(spell_id)
         b:SetScript("OnEnter", function(s)
             GameTooltip:SetOwner(s, "ANCHOR_RIGHT")
             local ok = link and pcall(GameTooltip.SetHyperlink, GameTooltip, link)

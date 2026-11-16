@@ -6,6 +6,7 @@
 
 local extraTip                      -- our attached tooltip frame (created lazily)
 local anchorHost                    -- the tooltip we're currently attached to
+local shownItemId                   -- item id currently displayed in the box
 
 local CLASS_FILE = {
     ["Druid"] = "DRUID", ["Hunter"] = "HUNTER", ["Mage"] = "MAGE",
@@ -113,10 +114,18 @@ end
 local function hideExtra()
     if extraTip then extraTip:Hide() end
     anchorHost = nil
+    shownItemId = nil
 end
 
 -- Show the attached BiS box under `host` (the item tooltip that fired).
 local function showExtra(host, itemId)
+    -- Some tooltips (e.g. merchant items) re-fire this callback several times a
+    -- second while hovered. If we're already showing this item under the same
+    -- host, leave the box untouched -- rebuilding it every frame makes it flicker.
+    if extraTip and extraTip:IsShown() and anchorHost == host and shownItemId == itemId then
+        return
+    end
+
     hideExtra()
     if BistooltipAddon.db.char.tooltip_with_ctrl and not IsControlKeyDown() then return end
 
@@ -132,6 +141,7 @@ local function showExtra(host, itemId)
     et:SetFrameStrata(host:GetFrameStrata())
     et:SetFrameLevel(host:GetFrameLevel() + 1)
     anchorHost = host
+    shownItemId = itemId
 
     -- Lay out the box at a given minimum content width. SetMinimumWidth only
     -- takes effect through a fresh layout pass (ClearLines -> AddLine -> Show);
