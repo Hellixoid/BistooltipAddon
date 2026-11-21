@@ -204,7 +204,19 @@ end
 local function hookHost(host)
     if not host or host.bistooltipHooked then return end
     host.bistooltipHooked = true
-    host:HookScript("OnHide", function(self) if anchorHost == self then hideExtra() end end)
+    -- Some hosts (notably the auction house) hide and immediately re-show the
+    -- tooltip on every refresh tick. Hiding our box straight away makes it
+    -- flicker, so defer a frame and only hide if the host is still gone.
+    host:HookScript("OnHide", function(self)
+        if anchorHost ~= self then return end
+        if C_Timer and C_Timer.After then
+            C_Timer.After(0, function()
+                if anchorHost == self and not self:IsShown() then hideExtra() end
+            end)
+        else
+            hideExtra()
+        end
+    end)
 end
 
 function BistooltipAddon:initBisTooltip()

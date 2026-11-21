@@ -95,6 +95,15 @@ local function getItemButton()
     return btn
 end
 
+-- GetItemInfo was removed from the global namespace on the modern engine
+-- (WoW Forever 5.5.4); it now lives under C_Item. Fall back to the old global
+-- for older clients. Returns the full GetItemInfo tuple as a table.
+local function itemInfo(item_id)
+    if C_Item and C_Item.GetItemInfo then return { C_Item.GetItemInfo(item_id) } end
+    if GetItemInfo then return { GetItemInfo(item_id) } end
+    return {}
+end
+
 local function fillItemButton(btn, item_id, withCheck)
     local it = Item:CreateFromItemID(item_id)
     if not it:GetItemID() then return end
@@ -102,8 +111,9 @@ local function fillItemButton(btn, item_id, withCheck)
         if not btn:IsShown() then return end
         local link = it:GetItemLink()
         btn.tex:SetTexture(it:GetItemIcon())
-        local quality = select(3, GetItemInfo(item_id))
-        local bindType = select(14, GetItemInfo(item_id))
+        local info = itemInfo(item_id)
+        local quality = info[3]
+        local bindType = info[14]
         local qc = quality and ITEM_QUALITY_COLORS[quality]
         if qc then
             for _, t in ipairs(btn.borderTex) do t:SetColorTexture(qc.r, qc.g, qc.b, 1) end
