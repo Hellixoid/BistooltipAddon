@@ -1,5 +1,5 @@
 BistooltipAddon = BistooltipAddon or {}
-BistooltipAddon.AddonNameAndVersion = "Bis-Tooltip v10.002"
+BistooltipAddon.AddonNameAndVersion = "Bis-Tooltip v10.003"
 
 Bistooltip_char_equipment = {}
 
