@@ -31,21 +31,33 @@ local function build(mf)
         fs:SetPoint("TOPLEFT", 14, y); y = y - 20
     end
 
-    sectionLabel("Highlight in tooltips")
-
-    local radios = {}
-    local function makeRadio(mode, label)
-        local rb = W.radio(card, label)
-        rb:SetPoint("TOPLEFT", 16, y); y = y - 24
-        rb:SetOnClick(function()
-            BistooltipAddon:setHighlightMode(mode)
-            for m, r in pairs(radios) do r:SetSelected(m == mode) end
-        end)
-        radios[mode] = rb
+    local function makeRadioGroup(radios, onSelect)
+        return function(mode, label)
+            local rb = W.radio(card, label)
+            rb:SetPoint("TOPLEFT", 16, y); y = y - 24
+            rb:SetOnClick(function()
+                onSelect(mode)
+                for m, r in pairs(radios) do r:SetSelected(m == mode) end
+            end)
+            radios[mode] = rb
+        end
     end
-    makeRadio("none", "None")
-    makeRadio("class", "Your class")
-    makeRadio("spec", "Current spec(s)")
+
+    sectionLabel("Highlight in tooltips")
+    local hlRadios = {}
+    local hlRadio = makeRadioGroup(hlRadios, function(m) BistooltipAddon:setHighlightMode(m) end)
+    hlRadio("none", "None")
+    hlRadio("class", "Your class")
+    hlRadio("spec", "Current spec(s) (experimental)")
+
+    y = y - 8
+
+    sectionLabel("Filter in tooltips")
+    local flRadios = {}
+    local flRadio = makeRadioGroup(flRadios, function(m) BistooltipAddon:setFilterMode(m) end)
+    flRadio("none", "None")
+    flRadio("class", "Your class")
+    flRadio("spec", "Current spec(s) (experimental)")
 
     y = y - 6
     local div = card:CreateTexture(nil, "ARTWORK")
@@ -74,7 +86,8 @@ local function build(mf)
     card:SetHeight(-y + 16)
 
     overlay.refresh = function()
-        for m, r in pairs(radios) do r:SetSelected(m == db.highlight_mode) end
+        for m, r in pairs(hlRadios) do r:SetSelected(m == db.highlight_mode) end
+        for m, r in pairs(flRadios) do r:SetSelected(m == db.filter_mode) end
         cbMinimap:SetChecked(db.minimap_icon)
         cbClassNames:SetChecked(db.filter_class_names)
         cbCtrl:SetChecked(db.tooltip_with_ctrl)

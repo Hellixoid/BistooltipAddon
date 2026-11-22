@@ -35,6 +35,29 @@ local function isHighlighted(class_name, spec_name)
     return false
 end
 
+-- Filter mode mirrors the highlight modes, but hides non-matching specs instead
+-- of recoloring them. "none" shows everything.
+local function passesFilter(class_name, spec_name)
+    local mode = BistooltipAddon.db.char.filter_mode
+    if mode == "class" then
+        return class_name == BistooltipAddon.playerClassName
+    elseif mode == "spec" then
+        return class_name == BistooltipAddon.playerClassName
+            and BistooltipAddon.playerSpecs and BistooltipAddon.playerSpecs[spec_name] == true
+    end
+    return true
+end
+
+-- True if at least one spec for this item survives the current filter.
+local function hasBisToShow(itemId)
+    local item = Bistooltip_items and Bistooltip_items[itemId]
+    if not item or #item == 0 then return false end
+    for _, spec in ipairs(item) do
+        if passesFilter(spec.class_name, spec.spec_name) then return true end
+    end
+    return false
+end
+
 local function classNamesFiltered()
     return BistooltipAddon.db.char.filter_class_names == true
 end
@@ -76,10 +99,19 @@ local function populate(tooltip, itemId)
     local item = Bistooltip_items[itemId]
     if #item == 0 then return false end
 
+    -- Apply the filter mode: keep only the specs that match (all, when "none").
+    local matches = {}
+    for _, spec in ipairs(item) do
+        if passesFilter(spec.class_name, spec.spec_name) then
+            matches[#matches + 1] = spec
+        end
+    end
+    if #matches == 0 then return false end
+
     tooltip:AddDoubleLine("Spec name", Bistooltip_phases_string or "", 1, 1, 0, 1, 1, 0)
 
     local previous_class = nil
-    for _, spec in ipairs(item) do
+    for _, spec in ipairs(matches) do
         local class_name = spec.class_name
         local spec_name = spec.spec_name
         for _, slot in ipairs(spec.slots) do
@@ -129,9 +161,9 @@ local function showExtra(host, itemId)
     hideExtra()
     if BistooltipAddon.db.char.tooltip_with_ctrl and not IsControlKeyDown() then return end
 
-    -- Bail early if there's nothing to show, so we never flash an empty box.
-    if not itemId or Bistooltip_items == nil or Bistooltip_items[itemId] == nil
-        or #Bistooltip_items[itemId] == 0 then
+    -- Bail early if there's nothing to show (no data, or the filter hides it
+    -- all), so we never flash an empty box.
+    if not itemId or not hasBisToShow(itemId) then
         return
     end
 

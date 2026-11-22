@@ -11,6 +11,7 @@ local defaults = {
     filter_class_names = false,
     tooltip_with_ctrl = false,
     highlight_mode = "class", -- "none" | "class" | "spec"
+    filter_mode = "none",     -- "none" | "class" | "spec" (hide non-matching specs)
     bis_list_window = nil,
     version = 10.0,
 }

@@ -582,6 +582,10 @@ function BistooltipAddon:setHighlightMode(mode)
     refreshHighlightBtn()
 end
 
+function BistooltipAddon:setFilterMode(mode)
+    BistooltipAddon.db.char.filter_mode = mode
+end
+
 function BistooltipAddon:initBislists()
     C = BistooltipAddon.Colors
     class_index = BistooltipAddon.db.char.class_index or 1
