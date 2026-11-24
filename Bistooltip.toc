@@ -1,9 +1,9 @@
 ## Interface: 16001
 ## Title: BiS-Tooltip
-## Notes: v10.005. In game BiS lists and item tooltip enrichment.
+## Notes: v10.006. In game BiS lists and item tooltip enrichment.
 ## Author: Hellixoid
 ## Author: Dweem
-## Version: 10.005
+## Version: 10.006
 ## SavedVariables: BisTooltipDB
 ## OptionalDeps:
 ## Category: Equipment
