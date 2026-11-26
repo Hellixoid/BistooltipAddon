@@ -390,7 +390,7 @@ local function buildWindow()
     title:SetText("BiS-Tooltip")
     local ver = W.text(header, 12, C.textMuted)
     ver:SetPoint("LEFT", title, "RIGHT", 6, 0)
-    ver:SetText("v10.006")
+    ver:SetText("v10.007")
 
     local close = W.iconButton(header, 26)
     close:SetPoint("RIGHT", -8, 0)
