@@ -399,7 +399,7 @@ Bistooltip_wh_bislists["Shaman"]["Elemental"]["P1"][8] = { ["slot_name"] = "Wais
 Bistooltip_wh_bislists["Shaman"]["Elemental"]["P1"][9] = { ["slot_name"] = "Legs", ["enhs"] = { [1] = { ["type"] = "spell", ["id"] = 22844 } }, [1] = 252486, [2] = 252606, [3] = 227005, [4] = 16579, [5] = 10273, [6] = 13170 }
 Bistooltip_wh_bislists["Shaman"]["Elemental"]["P1"][10] = { ["slot_name"] = "Feet", ["enhs"] = { [1] = { ["type"] = "spell", ["id"] = 1254770 } }, [1] = 227007, [2] = 22240, [3] = 10270, [4] = 18322, [5] = 22231, [6] = 11822 }
 Bistooltip_wh_bislists["Shaman"]["Elemental"]["P1"][11] = { ["slot_name"] = "Finger", ["enhs"] = { }, [1] = 272406, [2] = 22339, [3] = 20682, [4] = 12543, [5] = 19325, [6] = 862 }
-Bistooltip_wh_bislists["Shaman"]["Elemental"]["P1"][12] = { ["slot_name"] = "Trinket", ["enhs"] = { }, [1] = 272438, [2] = 18471, [3] = 13213, [4] = 12930, [5] = 13968, [6] = 249469 }
+Bistooltip_wh_bislists["Shaman"]["Elemental"]["P1"][12] = { ["slot_name"] = "Trinket", ["enhs"] = { }, [1] = 272438, [2] = 18471, [3] = 12930, [4] = 13968, [5] = 13213, [6] = 249469 }
 Bistooltip_wh_bislists["Shaman"]["Elemental"]["P1"][13] = { ["slot_name"] = "Weapon", ["enhs"] = { [1] = { ["type"] = "spell", ["id"] = 1248805 } }, [1] = 272856, [2] = 20070, [3] = 2243, [4] = 13964, [5] = 18048, [6] = 287034 }
 Bistooltip_wh_bislists["Shaman"]["Elemental"]["P1"][14] = { ["slot_name"] = "Off hand", ["enhs"] = { }, [1] = 19315, [2] = 278158, [3] = 18316, [4] = 11904, [5] = 22253, [6] = -1 }
 Bistooltip_wh_bislists["Shaman"]["Elemental"]["P1"][15] = { ["slot_name"] = "Relic", ["enhs"] = { }, [1] = 23199, [2] = 228176, [3] = 272433, [4] = 249398, [5] = -1, [6] = -1 }
